@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="192" width="192" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 50.799999 50.800001" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <title>Material Tree</title>
+ <defs>
+  <linearGradient id="linearGradient1444">
+   <stop stop-color="#e6e6e6" stop-opacity=".25683" offset="0"/>
+   <stop stop-color="#000004" stop-opacity="0" offset="1"/>
+  </linearGradient>
+  <linearGradient id="linearGradient1450" y2="46.723" xlink:href="#linearGradient1444" gradientUnits="userSpaceOnUse" x2="15.347" y1="29.795" x1="7.4622"/>
+  <linearGradient id="linearGradient1460" y2="44.886" xlink:href="#linearGradient1444" gradientUnits="userSpaceOnUse" x2="34.611" y1="24.306" x1="19.109"/>
+  <filter id="filter1579" style="color-interpolation-filters:sRGB">
+   <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 -0.2125 -0.7154 -0.0721 1 0 " result="colormatrix" in="SourceGraphic"/>
+   <feComposite in="SourceGraphic" in2="colormatrix" k3="2.76789" k2="1" result="composite" k4="0" operator="arithmetic"/>
+   <feGaussianBlur stdDeviation="0.33 0.01" result="blur1"/>
+   <feGaussianBlur stdDeviation="0.01 0.33" result="blur2" in="composite"/>
+   <feBlend result="fbSourceGraphic" mode="darken" in2="blur1" in="blur2"/>
+   <feColorMatrix values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 1 0" result="fbSourceGraphicAlpha" in="fbSourceGraphic"/>
+   <feColorMatrix result="colormatrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 -0.2125 -0.7154 -0.0721 1 0 " in="fbSourceGraphic"/>
+   <feComposite k4="0" in2="colormatrix" k3="2.77" k2="1" result="composite" in="fbSourceGraphic" operator="arithmetic"/>
+   <feGaussianBlur stdDeviation="0.33 0.01" result="blur1"/>
+   <feGaussianBlur result="blur2" stdDeviation="0.01 0.33" in="composite"/>
+   <feBlend result="blend" mode="darken" in2="blur1" in="blur2"/>
+  </filter>
+ </defs>
+ <metadata>
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title>Material Tree</dc:title>
+    <cc:license rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/"/>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>duangsuse</dc:title>
+     </cc:Agent>
+    </dc:creator>
+    <dc:date>2017-11-11</dc:date>
+   </cc:Work>
+   <cc:License rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#ShareAlike"/>
+   </cc:License>
+  </rdf:RDF>
+ </metadata>
+ <g>
+  <rect id="bg" stroke-opacity=".91803" fill-opacity=".98913" height="50.915" width="50.915" stroke="#dbffff" y=".018790" x="0" stroke-width="0.265" fill="#d38d5f"/>
+ </g>
+ <g transform="translate(0 -246.2)">
+  <g fill="#e6e6e6" fill-opacity=".99454">
+   <rect id="body" stroke-opacity=".44809" height="18.22" width="7.5707" stroke="#fff" y="275.17" x="21.093" stroke-width=".22406"/>
+   <path id="la" d="m13.883 276.62 21.676 0.14007-9.9526-11.977z" stroke-opacity=".054645" stroke="#000" stroke-width=".25895px"/>
+   <path id="lb" d="m14.308 268.28 21.047 0.057-9.918-11.739z" stroke-opacity=".071038" stroke="#000" stroke-width=".22699px"/>
+  </g>
+  <g stroke="#000">
+   <g stroke-width="0.265" stroke-opacity=".071038">
+    <circle id="c" fill-opacity=".99454" cx="19.544" cy="265.76" r=".83522" fill="#94a3e6"/>
+    <circle id="b" fill-opacity=".99454" cx="30.903" cy="274.18" r="1.1025" fill="#94cee6"/>
+    <circle id="a" fill-opacity=".73770" cx="16.972" cy="275.22" r=".53454" fill="#94ceb2"/>
+    <circle id="d" fill-opacity=".73770" cx="27.93" cy="261.85" r=".46772" fill="#db98ca"/>
+   </g>
+   <path id="ta" d="m-0.93544 43.049s22.81-1.1166 29.466 6.214c4.071 4.4832-18.459 2.2232-18.575 2.205l-9.9556-0.534z" stroke-opacity=".060109" transform="translate(0 246.2)" stroke-width=".26458px" fill="#e6e6e6"/>
+  </g>
+ </g>
+ <g>
+  <path id="tb" d="m54.523 44.452c-0.908-6.289-33.736-0.239-30.001 6.348 6.829 12.043 29.466-1.069 29.466-1.069z" stroke-opacity=".043716" stroke="#000" stroke-width=".26458px" fill="#ececec"/>
+ </g>
+ <g>
+  <path id="sa" d="m21.093 47.191-0.334-16.684 7.905 16.684z" fill="url(#linearGradient1450)"/>
+  <path id="sb" d="m35.559 30.564 8.8748 15.292-15.77 1.3353 0.0011-16.637z" fill="url(#linearGradient1460)"/>
+  <path id="star" fill-opacity=".96196" filter="url(#filter1579)" fill="#e1e220" d="m26.941 12.602-1.637-0.73221-1.6238 0.76099 0.19051-1.7832-1.2255-1.3092 1.7547-0.36984 0.86641-1.5701 0.89399 1.5546 1.761 0.33881-1.2022 1.3306z"/>
+ </g>
+</svg>
