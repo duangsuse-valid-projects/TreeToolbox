@@ -1,5 +1,5 @@
 <p align="center">
-<img src="https://raw.githubusercontent.com/pigfromchina/treeToolbox/doc/material-tree.svg" alt="Material Tree Icon">
+<img src="https://github.com/pigfromChina/TreeToolbox/raw/master/doc/material-tree.svg" alt="Material Tree Icon">
 </p>
 
 <h1 align="center">Tree Toolbox</h1>
