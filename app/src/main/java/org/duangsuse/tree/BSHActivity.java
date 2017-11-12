@@ -245,7 +245,7 @@ public class BSHActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         if (onCreateOptionsMenuCall != null) {
             SetParam("menu", menu);
-            InvokeMethod(onCreateCall);
+            InvokeMethod(onCreateOptionsMenuCall);
         }
         return super.onCreateOptionsMenu(menu);
     }
