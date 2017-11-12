@@ -2,8 +2,10 @@ package org.duangsuse.tree;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.Gravity;
@@ -237,6 +239,26 @@ public class MainActivity extends Activity {
             toast(e.toString());
         }
         return null;
+    }
+
+    // launch beanShell Activity
+    public void beginActivity(String filename, int anim_in, int anim_out) {
+        try {
+            String file = getExternalFilesDir(Environment.MEDIA_MOUNTED).toString() + "/" + filename + ".bshA";
+            Intent i = new Intent(this, BSHActivity.class);
+            i.putExtra(run_field, file);
+            if (Build.VERSION.SDK_INT > 16) {
+                ActivityOptions ao = ActivityOptions.makeCustomAnimation(this, anim_in, anim_out);
+                startActivity(i, ao.toBundle());
+            } else
+                startActivity(i);
+        } catch (Exception e) {
+            toast("Failed to Start BSH Activity: " + e.getMessage());
+        }
+    }
+
+    public void beginActivity(String n) {
+        beginActivity(n, android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
     // destroy bsh object
