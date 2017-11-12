@@ -15,7 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnLongClickListener;
-import android.widget.TextView;
+import android.widget.EditText;
 
 import java.util.Locale;
 
@@ -24,7 +24,7 @@ import bsh.Interpreter;
 import static java.lang.String.format;
 
 public class ExecActivity extends Activity {
-    TextView textBackground;
+    EditText textBackground;
     String program;
 
     @SuppressLint("SetTextI18n")
@@ -32,8 +32,7 @@ public class ExecActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         if (getActionBar() != null)
             getActionBar().setIcon(drawable.ic_secure);
-        textBackground = new TextView(this);
-        textBackground.setTextIsSelectable(true);
+        textBackground = new EditText(this);
         textBackground.setText("Loading info...");
         setContentView(textBackground);
         try {
@@ -67,7 +66,7 @@ public class ExecActivity extends Activity {
         } catch (Exception ignored) {
         }
         textBackground.setText(
-                format(Locale.ENGLISH, "mBsh System information\n" +
+                format(Locale.ENGLISH, "Tree System information\n" +
                         "Package name: %s\n" +
                         "Version: %s\n" +
                         "Code: %s\n" +
