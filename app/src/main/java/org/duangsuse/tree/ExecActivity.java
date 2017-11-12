@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnLongClickListener;
+import android.view.Gravity;
 import android.widget.EditText;
 
 import java.util.Locale;
@@ -33,6 +34,7 @@ public class ExecActivity extends Activity {
         if (getActionBar() != null)
             getActionBar().setIcon(drawable.ic_secure);
         textBackground = new EditText(this);
+        textBackground.setGravity(Gravity.TOP);
         textBackground.setText("Loading info...");
         setContentView(textBackground);
         try {

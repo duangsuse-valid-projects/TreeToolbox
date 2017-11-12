@@ -15,8 +15,8 @@ android {
         applicationId "org.duangsuse.tree"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 2
-        versionName '1.1-萘'
+        versionCode 3
+        versionName '1.2-钠'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.config
     }
@@ -33,7 +33,7 @@ android {
         }
     }
     lintOptions {
-        disable 'MissingApplicationIcon', 'GoogleAppIndexingWarning', 'AllowBackup'
+        disable 'MissingApplicationIcon', 'GoogleAppIndexingWarning', 'AllowBackup', 'UnusedAttribute'
     }
     productFlavors {
     }

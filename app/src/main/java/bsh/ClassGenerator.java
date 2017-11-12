@@ -7,16 +7,7 @@ public abstract class ClassGenerator {
     private static ClassGenerator cg;
 
     public static ClassGenerator getClassGenerator() throws UtilEvalError {
-        if (cg == null) {
-            try {
-                Class clas = Class.forName("bsh.ClassGeneratorImpl");
-                cg = (ClassGenerator) clas.newInstance();
-            } catch (Exception e) {
-                throw new Unavailable("类生成器不可用: " + e);
-            }
-        }
-
-        return cg;
+        throw new Unavailable("类生成器不可用");
     }
 
     /** Parse the BSHBlock for the class definition and generate the class. */

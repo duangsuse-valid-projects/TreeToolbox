@@ -25,5 +25,7 @@
 -dontnote org.apache.http.**
 -dontnote android.net.http.**
 -dontnote bsh.ClassGenerator
+-dontnote bsh.BshClassManager
 -keep class org.duangsuse.** { *; }
 -keep class bsh.** { *; }
+-keepclassmembers class android.os.Build { int SDK_INT; }
