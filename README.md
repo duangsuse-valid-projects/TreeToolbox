@@ -6,6 +6,7 @@
 
 > Tree - Simple, Nature Toolbox for your Android
 
+[![build](https://img.shields.io/travis/pigfromChina/TreeToolbox.svg?style=flat-square)](https://travis-ci.org/pigfromChina/TreeToolbox)
 [![All Releases](https://img.shields.io/github/downloads/pigfromchina/treetoolbox/total.svg?style=flat-square)](https://github.com/pigfromChina/TreeToolbox/releases)
 [![Latest release at](https://img.shields.io/github/release-date/pigfromchina/treetoolbox.svg?style=flat-square)](https://github.com/pigfromChina/TreeToolbox/releases)
 [![code size](https://img.shields.io/github/languages/code-size/pigfromchina/treetoolbox.svg?style=flat-square)]()
