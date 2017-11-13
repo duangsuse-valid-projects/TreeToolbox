@@ -1,5 +1,4 @@
 package bsh;
-
 /*
 Note: great care (and lots of typing) were taken to insure that the
 namespace and interpreter references are passed on the stack and not
@@ -37,20 +36,16 @@ class SimpleNode implements Node {
     protected int id;
     Token firstToken, lastToken;
 
-    /**
-     * the source of the text from which this was parsed
-     */
+    /** the source of the text from which this was parsed */
     String sourceFile;
 
     public SimpleNode(int i) {
         id = i;
     }
 
-    public void jjtOpen() {
-    }
+    public void jjtOpen() {}
 
-    public void jjtClose() {
-    }
+    public void jjtClose() {}
 
     public void jjtSetParent(Node n) {
         parent = n;
@@ -125,11 +120,17 @@ class SimpleNode implements Node {
         jjtSetParent(null);
     }
 
-    /**
-     * This is the general signature for evaluation of a node.
-     */
+    /** This is the general signature for evaluation of a node. */
     public Object eval(CallStack callstack, Interpreter interpreter) throws EvalError {
         throw new InterpreterError("未实现或不适用 " + getClass().getName());
+    }
+
+    /**
+     * Set the name of the source file (or more generally source) of the text from which this node
+     * was parsed.
+     */
+    public void setSourceFile(String sourceFile) {
+        this.sourceFile = sourceFile;
     }
 
     /**
@@ -144,17 +145,7 @@ class SimpleNode implements Node {
         else return sourceFile;
     }
 
-    /**
-     * Set the name of the source file (or more generally source) of the text from which this node
-     * was parsed.
-     */
-    public void setSourceFile(String sourceFile) {
-        this.sourceFile = sourceFile;
-    }
-
-    /**
-     * Get the line number of the starting token
-     */
+    /** Get the line number of the starting token */
     public int getLineNumber() {
         return firstToken.beginLine;
     }
@@ -164,9 +155,7 @@ class SimpleNode implements Node {
      * lastToken.endLine; }
      */
 
-    /**
-     * Get the text of the tokens comprising this node.
-     */
+    /** Get the text of the tokens comprising this node. */
     public String getText() {
         StringBuffer text = new StringBuffer();
         Token t = firstToken;

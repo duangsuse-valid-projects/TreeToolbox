@@ -63,9 +63,7 @@ public class CollectionManager {
      * hasNext() methods. public static boolean isIterator() { }
      */
 
-    /**
-     * An implementation that works with JDK 1.1
-     */
+    /** An implementation that works with JDK 1.1 */
     public static class BasicBshIterator implements BshIterator {
         Enumeration enumeration;
 
@@ -74,8 +72,8 @@ public class CollectionManager {
          *
          * @param The object over which we are iterating
          * @throws java.lang.IllegalArgumentException If the argument is not a supported (i.e.
-         *                                            iterable) type.
-         * @throws java.lang.NullPointerException     If the argument is null
+         *     iterable) type.
+         * @throws java.lang.NullPointerException If the argument is null
          */
         public BasicBshIterator(Object iterateOverMe) {
             enumeration = createEnumeration(iterateOverMe);
@@ -87,8 +85,8 @@ public class CollectionManager {
          * @param iterateOverMe Object of type Enumeration, Vector, String, StringBuffer or an array
          * @return an enumeration
          * @throws java.lang.IllegalArgumentException If the argument is not a supported (i.e.
-         *                                            iterable) type.
-         * @throws java.lang.NullPointerException     If the argument is null
+         *     iterable) type.
+         * @throws java.lang.NullPointerException If the argument is null
          */
         protected Enumeration createEnumeration(Object iterateOverMe) {
             if (iterateOverMe == null)

@@ -1,14 +1,13 @@
 package bsh;
 
 class BSHFormalParameters extends SimpleNode {
-    /**
-     * For loose type parameters the paramTypes are null.
-     */
+    private String[] paramNames;
+    /** For loose type parameters the paramTypes are null. */
     // unsafe caching of types
     Class[] paramTypes;
+
     int numArgs;
     String[] typeDescriptors;
-    private String[] paramNames;
 
     BSHFormalParameters(int id) {
         super(id);
@@ -49,9 +48,7 @@ class BSHFormalParameters extends SimpleNode {
         return typeDesc;
     }
 
-    /**
-     * Evaluate the types. Note that type resolution does not require the interpreter instance.
-     */
+    /** Evaluate the types. Note that type resolution does not require the interpreter instance. */
     public Object eval(CallStack callstack, Interpreter interpreter) throws EvalError {
         if (paramTypes != null) return paramTypes;
 

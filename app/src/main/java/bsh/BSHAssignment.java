@@ -21,7 +21,7 @@ class BSHAssignment extends SimpleNode implements ParserConstants {
         // e.g. i=1; i+=i++; // should be 2 not 3
         Object lhsValue = null;
         if (operator != ASSIGN) // assign doesn't need the pre-value
-            try {
+        try {
                 lhsValue = lhs.getValue();
             } catch (UtilEvalError e) {
                 throw e.toEvalError(this, callstack);
@@ -110,13 +110,13 @@ class BSHAssignment extends SimpleNode implements ParserConstants {
                 throw new UtilEvalError("对空对象或'null'字面的非法使用");
 
         if ((lhs instanceof Boolean
-                || lhs instanceof Character
-                || lhs instanceof Number
-                || lhs instanceof Primitive)
+                        || lhs instanceof Character
+                        || lhs instanceof Number
+                        || lhs instanceof Primitive)
                 && (rhs instanceof Boolean
-                || rhs instanceof Character
-                || rhs instanceof Number
-                || rhs instanceof Primitive)) {
+                        || rhs instanceof Character
+                        || rhs instanceof Number
+                        || rhs instanceof Primitive)) {
             return Primitive.binaryOperation(lhs, rhs, kind);
         }
 

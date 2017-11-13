@@ -1,7 +1,6 @@
 package bsh;
 
-import java.util.StringTokenizer;
-import java.util.Vector;
+import java.util.*;
 
 public class StringUtil {
 
@@ -63,9 +62,7 @@ public class StringUtil {
      *     <p>return new String[] { dirName, baseName }; }
      */
 
-    /**
-     * Hack - The real method is in Reflect.java which is not public.
-     */
+    /** Hack - The real method is in Reflect.java which is not public. */
     public static String normalizeClassName(Class type) {
         return Reflect.normalizeClassName(type);
     }

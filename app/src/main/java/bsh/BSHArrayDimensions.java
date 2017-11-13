@@ -36,12 +36,12 @@ class BSHArrayDimensions extends SimpleNode {
 
     /**
      * Evaluate the structure of the array in one of two ways:
-     * <p>
+     *
      * <p>a) an initializer exists, evaluate it and return the fully constructed array object, also
      * record the dimensions of that array
-     * <p>
+     *
      * <p>b) evaluate and record the lengths in each dimension and return void.
-     * <p>
+     *
      * <p>The structure of the array dims is maintained in dimensions.
      */
     public Object eval(CallStack callstack, Interpreter interpreter) throws EvalError {

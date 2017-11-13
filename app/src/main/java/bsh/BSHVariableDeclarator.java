@@ -1,8 +1,6 @@
 package bsh;
 
-/**
- * name [ = initializer ] evaluate name and return optional initializer
- */
+/** name [ = initializer ] evaluate name and return optional initializer */
 class BSHVariableDeclarator extends SimpleNode {
     // The token.image text of the name... never changes.
     public String name;
@@ -13,14 +11,14 @@ class BSHVariableDeclarator extends SimpleNode {
 
     /**
      * Evaluate the optional initializer value. (The name was set at parse time.)
-     * <p>
+     *
      * <p>A variable declarator can be evaluated with or without preceding type information.
      * Currently the type info is only used by array initializers in the case where there is no
      * explicitly declared type.
      *
      * @param typeNode is the BSHType node. Its info is passed through to any variable intializer
-     *                 children for the case where the array initializer does not declare the type explicitly.
-     *                 e.g. int [] a = { 1, 2 }; typeNode may be null to indicate no type information available.
+     *     children for the case where the array initializer does not declare the type explicitly.
+     *     e.g. int [] a = { 1, 2 }; typeNode may be null to indicate no type information available.
      */
     public Object eval(BSHType typeNode, CallStack callstack, Interpreter interpreter)
             throws EvalError {

@@ -1,11 +1,10 @@
 package bsh.collection;
 
+import bsh.CollectionManager;
+import bsh.InterpreterError;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Iterator;
-
-import bsh.CollectionManager;
-import bsh.InterpreterError;
 
 /**
  * This is the implementation of: BshIterator - a dynamically loaded extension that supports the
@@ -22,8 +21,8 @@ public class CollectionIterator implements bsh.BshIterator {
      *
      * @param The object over which we are iterating
      * @throws java.lang.IllegalArgumentException If the argument is not a supported (i.e. iterable)
-     *                                            type.
-     * @throws java.lang.NullPointerException     If the argument is null
+     *     type.
+     * @throws java.lang.NullPointerException If the argument is null
      */
     public CollectionIterator(Object iterateOverMe) {
         iterator = createIterator(iterateOverMe);
@@ -33,11 +32,11 @@ public class CollectionIterator implements bsh.BshIterator {
      * Create an iterator over the given object
      *
      * @param iterateOverMe Object of type Iterator, Collection, Iterable, or types supported by
-     *                      CollectionManager.BasicBshIterator
+     *     CollectionManager.BasicBshIterator
      * @return an Iterator
      * @throws java.lang.IllegalArgumentException If the argument is not a supported (i.e. iterable)
-     *                                            type.
-     * @throws java.lang.NullPointerException     If the argument is null
+     *     type.
+     * @throws java.lang.NullPointerException If the argument is null
      */
     protected Iterator createIterator(Object iterateOverMe)
             throws java.lang.IllegalArgumentException {

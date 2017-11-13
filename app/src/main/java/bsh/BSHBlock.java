@@ -14,11 +14,11 @@ class BSHBlock extends SimpleNode {
 
     /**
      * @param overrideNamespace if set to true the block will be executed in the current namespace
-     *                          (not a subordinate one).
-     *                          <p>If true *no* new BlockNamespace will be swapped onto the stack and the eval will
-     *                          happen in the current top namespace. This is used by BshMethod, TryStatement, etc. which
-     *                          must intialize the block first and also for those that perform multiple passes in the
-     *                          same block.
+     *     (not a subordinate one).
+     *     <p>If true *no* new BlockNamespace will be swapped onto the stack and the eval will
+     *     happen in the current top namespace. This is used by BshMethod, TryStatement, etc. which
+     *     must intialize the block first and also for those that perform multiple passes in the
+     *     same block.
      */
     public Object eval(CallStack callstack, Interpreter interpreter, boolean overrideNamespace)
             throws EvalError {
@@ -31,7 +31,7 @@ class BSHBlock extends SimpleNode {
 
         Object ret;
         if (isSynchronized) // Do the actual synchronization
-            synchronized (syncValue) {
+        synchronized (syncValue) {
                 ret = evalBlock(callstack, interpreter, overrideNamespace, null);
             }
         else ret = evalBlock(callstack, interpreter, overrideNamespace, null);

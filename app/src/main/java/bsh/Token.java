@@ -8,9 +8,7 @@ All BeanShell modifications are demarcated by "Begin BeanShell
 Modification - ... " and "End BeanShell Modification - ..."
 */
 
-/**
- * Describes the input token stream.
- */
+/** Describes the input token stream. */
 
 // Begin BeanShell Modification - serializable
 public class Token implements java.io.Serializable {
@@ -28,9 +26,7 @@ public class Token implements java.io.Serializable {
      */
     public int beginLine, beginColumn, endLine, endColumn;
 
-    /**
-     * The string image of the token.
-     */
+    /** The string image of the token. */
     public String image;
 
     /**
@@ -53,14 +49,19 @@ public class Token implements java.io.Serializable {
      */
     public Token specialToken;
 
+    /** Returns the image. */
+    public String toString() {
+        return image;
+    }
+
     /**
      * Returns a new Token object, by default. However, if you want, you can create and return
      * subclass objects based on the value of ofKind. Simply add the cases to the switch for all
      * those special cases. For example, if you have a subclass of Token called IDToken that you
      * want to create if ofKind is ID, simlpy add something like :
-     * <p>
+     *
      * <p>case MyParserConstants.ID : return new IDToken();
-     * <p>
+     *
      * <p>to the following switch statement. Then you can cast matchedToken variable to the
      * appropriate type and use it in your lexical actions.
      */
@@ -69,12 +70,5 @@ public class Token implements java.io.Serializable {
             default:
                 return new Token();
         }
-    }
-
-    /**
-     * Returns the image.
-     */
-    public String toString() {
-        return image;
     }
 }

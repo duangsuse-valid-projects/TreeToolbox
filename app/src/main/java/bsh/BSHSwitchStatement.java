@@ -30,7 +30,7 @@ class BSHSwitchStatement extends SimpleNode implements ParserConstants {
             // if label is default or equals switchVal
             if (label.isDefault
                     || primitiveEquals(
-                    switchVal, label.eval(callstack, interpreter), callstack, switchExp)) {
+                            switchVal, label.eval(callstack, interpreter), callstack, switchExp)) {
                 // execute nodes, skipping labels, until a break or return
                 while (child < numchild) {
                     node = jjtGetChild(child++);

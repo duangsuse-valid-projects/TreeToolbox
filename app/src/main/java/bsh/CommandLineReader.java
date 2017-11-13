@@ -1,31 +1,23 @@
 package bsh;
 
-import java.io.FilterReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 
 /**
  * This is a quick hack to turn empty lines entered interactively on the command line into ';\n'
  * empty lines for the interpreter. It's just more pleasant to be able to hit return on an empty
  * line and see the prompt reappear.
- * <p>
+ *
  * <p>This is *not* used when text is sourced from a file non-interactively.
  */
 class CommandLineReader extends FilterReader {
-
-    static final int normal = 0, lastCharNL = 1, sentSemi = 2;
-    int state = lastCharNL;
 
     public CommandLineReader(Reader in) {
         super(in);
     }
 
-    // Test it
-    public static void main(String[] args) throws Exception {
-        Reader in = new CommandLineReader(new InputStreamReader(System.in));
-        while (true) System.out.println(in.read());
-    }
+    static final int normal = 0, lastCharNL = 1, sentSemi = 2;
+
+    int state = lastCharNL;
 
     public int read() throws IOException {
         int b;
@@ -59,5 +51,11 @@ class CommandLineReader extends FilterReader {
             buff[off] = (char) b;
             return 1;
         }
+    }
+
+    // Test it
+    public static void main(String[] args) throws Exception {
+        Reader in = new CommandLineReader(new InputStreamReader(System.in));
+        while (true) System.out.println(in.read());
     }
 }

@@ -2,7 +2,7 @@ package bsh;
 
 /**
  * Static routines supporing type comparison and conversion in BeanShell.
- * <p>
+ *
  * <p>The following are notes on type comparison and conversion in BeanShell.
  */
 class Types {
@@ -29,9 +29,7 @@ class Types {
 
     static Primitive INVALID_CAST = new Primitive(-1);
 
-    /**
-     * Get the Java types of the arguments.
-     */
+    /** Get the Java types of the arguments. */
     public static Class[] getTypes(Object[] args) {
         if (args == null) return new Class[0];
 
@@ -95,22 +93,22 @@ class Types {
      * Test if a conversion of the rhsType type to the lhsType type is legal via standard Java
      * assignment conversion rules (i.e. without a cast). The rules include Java 5
      * autoboxing/unboxing.
-     * <p>
+     *
      * <p>For Java primitive TYPE classes this method takes primitive promotion into account. The
      * ordinary Class.isAssignableFrom() does not take primitive promotion conversions into account.
      * Note that Java allows additional assignments without a cast in combination with variable
      * declarations and array allocations. Those are handled elsewhere (maybe should be here with a
      * flag?)
-     * <p>
+     *
      * <p>This class accepts a null rhsType type indicating that the rhsType was the value
      * Primitive.NULL and allows it to be assigned to any reference lhsType type (non primitive).
-     * <p>
+     *
      * <p>Note that the getAssignableForm() method is the primary bsh method for checking
      * assignability. It adds additional bsh conversions, etc.
      *
+     * @see #isBshAssignable( Class, Class )
      * @param lhsType assigning from rhsType to lhsType
      * @param rhsType assigning from rhsType to lhsType
-     * @see #isBshAssignable(Class, Class)
      */
     static boolean isJavaAssignable(Class lhsType, Class rhsType) {
         return isJavaBaseAssignable(lhsType, rhsType) || isJavaBoxTypesAssignable(lhsType, rhsType);
@@ -142,22 +140,22 @@ class Types {
             // handle primitive widening conversions - JLS 5.1.2
             if ((rhsType == Byte.TYPE)
                     && (lhsType == Short.TYPE
-                    || lhsType == Integer.TYPE
-                    || lhsType == Long.TYPE
-                    || lhsType == Float.TYPE
-                    || lhsType == Double.TYPE)) return true;
+                            || lhsType == Integer.TYPE
+                            || lhsType == Long.TYPE
+                            || lhsType == Float.TYPE
+                            || lhsType == Double.TYPE)) return true;
 
             if ((rhsType == Short.TYPE)
                     && (lhsType == Integer.TYPE
-                    || lhsType == Long.TYPE
-                    || lhsType == Float.TYPE
-                    || lhsType == Double.TYPE)) return true;
+                            || lhsType == Long.TYPE
+                            || lhsType == Float.TYPE
+                            || lhsType == Double.TYPE)) return true;
 
             if ((rhsType == Character.TYPE)
                     && (lhsType == Integer.TYPE
-                    || lhsType == Long.TYPE
-                    || lhsType == Float.TYPE
-                    || lhsType == Double.TYPE)) return true;
+                            || lhsType == Long.TYPE
+                            || lhsType == Float.TYPE
+                            || lhsType == Double.TYPE)) return true;
 
             if ((rhsType == Integer.TYPE)
                     && (lhsType == Long.TYPE || lhsType == Float.TYPE || lhsType == Double.TYPE))
@@ -172,9 +170,7 @@ class Types {
         return false;
     }
 
-    /**
-     * Determine if the type is assignable via Java boxing/unboxing rules.
-     */
+    /** Determine if the type is assignable via Java boxing/unboxing rules. */
     static boolean isJavaBoxTypesAssignable(Class lhsType, Class rhsType) {
         // Assignment to loose type... defer to bsh extensions
         if (lhsType == null) return false;
@@ -212,15 +208,15 @@ class Types {
      * Attempt to cast an object instance to a new type if possible via BeanShell extended syntax
      * rules. These rules are always a superset of Java conversion rules. If you wish to impose
      * context sensitive conversion rules then you must test before calling this method.
-     * <p>
+     *
      * <p>This method can handle fromValue Primitive types (representing primitive casts) as well as
      * fromValue object casts requiring interface generation, etc.
      *
-     * @param toType    the class type of the cast result, which may include primitive types, e.g.
-     *                  Byte.TYPE
+     * @param toType the class type of the cast result, which may include primitive types, e.g.
+     *     Byte.TYPE
      * @param fromValue an Object or bsh.Primitive primitive value (including Primitive.NULL or
-     *                  Primitive.VOID )
-     * @see #isBshAssignable(Class, Class)
+     *     Primitive.VOID )
+     * @see #isBshAssignable( Class, Class )
      */
     public static Object castObject(Object fromValue, Class toType, int operation)
             throws UtilEvalError {
@@ -238,40 +234,40 @@ class Types {
      * Perform a type conversion or test if a type conversion is possible with respect to BeanShell
      * extended rules. These rules are always a superset of the Java language rules, so this method
      * can also perform (but not test) any Java language assignment or cast conversion.
-     * <p>
+     *
      * <p>This method can perform the functionality of testing if an assignment or cast is
      * ultimately possible (with respect to BeanShell) as well as the functionality of performing
      * the necessary conversion of a value based on the specified target type. This combined
      * functionality is done for expediency and could be separated later.
-     * <p>
+     *
      * <p>Other methods such as isJavaAssignable() should be used to determine the suitability of an
      * assignment in a fine grained or restrictive way based on context before calling this method
-     * <p>
+     *
      * <p>A CAST is stronger than an ASSIGNMENT operation in that it will attempt to perform
      * primtive operations that cast to a smaller type. e.g. (byte)myLong; These are used in
      * explicit primitive casts, primitive delclarations and array declarations. I don't believe
      * there are any object conversions which are different between ASSIGNMENT and CAST (e.g.
      * scripted object to interface proxy in bsh is done on assignment as well as cast).
-     * <p>
+     *
      * <p>This method does not obey strictJava(), you must test first before using this method if
      * you care. (See #isJavaAssignable()).
-     * <p>
+     *
      * <p>
      *
-     * @param toType    the class type of the cast result, which may include primitive types, e.g.
-     *                  Byte.TYPE. toType may be null to indicate a loose type assignment (which matches any
-     *                  fromType).
-     * @param fromType  is the class type of the value to be cast including java primitive TYPE
-     *                  classes for primitives. If fromValue is (or would be) Primitive.NULL then fromType should
-     *                  be null.
+     * @param toType the class type of the cast result, which may include primitive types, e.g.
+     *     Byte.TYPE. toType may be null to indicate a loose type assignment (which matches any
+     *     fromType).
+     * @param fromType is the class type of the value to be cast including java primitive TYPE
+     *     classes for primitives. If fromValue is (or would be) Primitive.NULL then fromType should
+     *     be null.
      * @param fromValue an Object or bsh.Primitive primitive value (including Primitive.NULL or
-     *                  Primitive.VOID )
+     *     Primitive.VOID )
      * @param checkOnly If checkOnly is true then fromValue must be null. FromType is checked for
-     *                  the cast to toType... If checkOnly is false then fromValue must be non-null
-     *                  (Primitive.NULL is ok) and the actual cast is performed.
-     * @param operation is Types.CAST or Types.ASSIGNMENT
-     * @throws UtilEvalError   on invalid assignment (when operation is assignment ).
+     *     the cast to toType... If checkOnly is false then fromValue must be non-null
+     *     (Primitive.NULL is ok) and the actual cast is performed.
+     * @throws UtilEvalError on invalid assignment (when operation is assignment ).
      * @throws UtilTargetError wrapping ClassCastException on cast error (when operation is cast)
+     * @param operation is Types.CAST or Types.ASSIGNMENT
      * @see bsh.Primitive.getType()
      */
     /*
@@ -334,7 +330,7 @@ class Types {
                 return checkOnly
                         ? VALID_CAST
                         : Primitive.castWrapper(
-                        Primitive.unboxType(toType), ((Primitive) fromValue).getValue());
+                                Primitive.unboxType(toType), ((Primitive) fromValue).getValue());
             }
 
             // Primitive (not null or void) to Object.class type

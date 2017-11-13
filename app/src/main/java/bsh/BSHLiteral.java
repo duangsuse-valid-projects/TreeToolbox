@@ -35,7 +35,7 @@ class BSHLiteral extends SimpleNode {
                 ch = '\r';
                 break;
 
-            // do nothing - ch already contains correct character
+                // do nothing - ch already contains correct character
             case '"':
             case '\'':
             case '\\':

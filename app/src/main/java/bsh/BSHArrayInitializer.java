@@ -14,7 +14,7 @@ class BSHArrayInitializer extends SimpleNode {
     /**
      * Construct the array from the initializer syntax.
      *
-     * @param baseType   the base class type of the array (no dimensionality)
+     * @param baseType the base class type of the array (no dimensionality)
      * @param dimensions the top number of dimensions of the array e.g. 2 for a String [][];
      */
     public Object eval(Class baseType, int dimensions, CallStack callstack, Interpreter interpreter)

@@ -5,7 +5,7 @@ package bsh;
  * child namespace but only for typed variables declared within it (block local scope) or untyped
  * variables explicitly set in it via setBlockVariable(). Otherwise variable assignment (including
  * untyped variable usage) acts like it is part of the containing block.
- * <p>
+ *
  * <p>
  */
 /*
@@ -24,7 +24,7 @@ class BlockNameSpace extends NameSpace {
      * Override the standard namespace behavior to make assignments happen in our parent (enclosing)
      * namespace, unless the variable has already been assigned here via a typed declaration or
      * through the special setBlockVariable() (used for untyped args in try/catch).
-     * <p>
+     *
      * <p>i.e. only allow typed var declaration to happen in this namespace. Typed vars are handled
      * in the ordinary way local scope. All untyped assignments are delegated to the enclosing
      * context.
@@ -74,7 +74,7 @@ class BlockNameSpace extends NameSpace {
      * BlockNameSpace needs to resolve things relative to 'this' we must use the actual block's
      * 'this' reference. Name.java is smart enough to handle this using getBlockThis().
      *
-     * @see #getThis(Interpreter) This getBlockThis( Interpreter declaringInterpreter ) { return
+     * @see #getThis( Interpreter ) This getBlockThis( Interpreter declaringInterpreter ) { return
      *     super.getThis( declaringInterpreter ); }
      */
 
@@ -88,9 +88,7 @@ class BlockNameSpace extends NameSpace {
      * <p>public NameSpace getParent() { NameSpace parent = super.getParent(); if ( parent
      * instanceof BlockNameSpace ) return parent.getParent(); else return parent; }
      */
-    /**
-     * do we need this?
-     */
+    /** do we need this? */
     private NameSpace getNonBlockParent() {
         NameSpace parent = super.getParent();
         if (parent instanceof BlockNameSpace) return ((BlockNameSpace) parent).getNonBlockParent();
@@ -102,29 +100,23 @@ class BlockNameSpace extends NameSpace {
      * reference to a BlockNameSpace (e.g. if () { } ) resolves to the parent namespace (e.g. the
      * namespace containing the "if" statement).
      *
-     * @see #getBlockThis(Interpreter)
+     * @see #getBlockThis( Interpreter )
      */
     public This getThis(Interpreter declaringInterpreter) {
         return getNonBlockParent().getThis(declaringInterpreter);
     }
 
-    /**
-     * super is our parent's super
-     */
+    /** super is our parent's super */
     public This getSuper(Interpreter declaringInterpreter) {
         return getNonBlockParent().getSuper(declaringInterpreter);
     }
 
-    /**
-     * delegate import to our parent
-     */
+    /** delegate import to our parent */
     public void importClass(String name) {
         getParent().importClass(name);
     }
 
-    /**
-     * delegate import to our parent
-     */
+    /** delegate import to our parent */
     public void importPackage(String name) {
         getParent().importPackage(name);
     }

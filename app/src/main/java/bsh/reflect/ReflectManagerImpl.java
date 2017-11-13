@@ -1,13 +1,12 @@
 package bsh.reflect;
 
-import java.lang.reflect.AccessibleObject;
-
 import bsh.ReflectManager;
+import java.lang.reflect.AccessibleObject;
 
 /**
  * This is the implementation of: ReflectManager - a dynamically loaded extension that supports
  * extended reflection features supported by JDK1.2 and greater.
- * <p>
+ *
  * <p>In particular it currently supports accessible method and field access supported by JDK1.2 and
  * greater.
  */

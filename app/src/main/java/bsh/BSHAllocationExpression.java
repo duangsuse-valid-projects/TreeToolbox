@@ -3,15 +3,13 @@ package bsh;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 
-/**
- * New object, new array, or inner class style allocation with body.
- */
+/** New object, new array, or inner class style allocation with body. */
 class BSHAllocationExpression extends SimpleNode {
-    private static int innerClassCount = 0;
-
     BSHAllocationExpression(int id) {
         super(id);
     }
+
+    private static int innerClassCount = 0;
 
     public Object eval(CallStack callstack, Interpreter interpreter) throws EvalError {
         // type is either a class name or a primitive type
@@ -210,7 +208,7 @@ class BSHAllocationExpression extends SimpleNode {
     /**
      * Create an array of the dimensions specified in dimensionsNode. dimensionsNode may contain a
      * number of "undefined" as well as "defined" dimensions.
-     * <p>
+     *
      * <p>Background: in Java arrays are implemented in arrays-of-arrays style where, for example, a
      * two dimensional array is a an array of arrays of some base type. Each dimension-type has a
      * Java class type associated with it... so if foo = new int[5][5] then the type of foo is int
@@ -219,7 +217,7 @@ class BSHAllocationExpression extends SimpleNode {
      * if foo = new int [5][]; then foo[0] == null //true; and can later be assigned with the
      * appropriate type, e.g. foo[0] = new int[5]; (See Learning Java, O'Reilly & Associates more
      * background).
-     * <p>
+     *
      * <p>To create an array with undefined trailing dimensions using the reflection API we must use
      * an array type to represent the lower order (undefined) dimensions as the "base" type for the
      * array creation... Java will then create the correct type by adding the dimensions of the base

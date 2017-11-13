@@ -7,7 +7,7 @@ class BSHArguments extends SimpleNode {
 
     /**
      * This node holds a set of arguments for a method invocation or constructor call.
-     * <p>
+     *
      * <p>Note: arguments are not currently allowed to be VOID.
      */
     /*

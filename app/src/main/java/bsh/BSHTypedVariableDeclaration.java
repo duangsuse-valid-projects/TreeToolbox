@@ -26,9 +26,7 @@ class BSHTypedVariableDeclaration extends SimpleNode {
         return bvda;
     }
 
-    /**
-     * evaluate the type and one or more variable declarators, e.g.: int a, b=5, c;
-     */
+    /** evaluate the type and one or more variable declarators, e.g.: int a, b=5, c; */
     public Object eval(CallStack callstack, Interpreter interpreter) throws EvalError {
         try {
             NameSpace namespace = callstack.top();

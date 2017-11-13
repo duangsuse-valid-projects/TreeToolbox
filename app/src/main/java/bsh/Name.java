@@ -1,16 +1,17 @@
 package bsh;
 
+import java.io.*;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 
 /**
  * What's in a name? I'll tell you... Name() is a somewhat ambiguous thing in the grammar and so is
  * this.
- * <p>
+ *
  * <p>This class is a name resolver. It holds a possibly ambiguous dot separated name and reference
  * to a namespace in which it allegedly lives. It provides methods that attempt to resolve the name
  * to various types of entities: e.g. an Object, a Class, a declared scripted BeanShell method.
- * <p>
+ *
  * <p>Name objects are created by the factory method NameSpace getNameResolver(), which caches them
  * subject to a class namespace change. This means that we can cache information about various types
  * of resolution here. Currently very little if any information is cached. However with a future
@@ -54,33 +55,27 @@ this.callstack
 </pre>
 */
 class Name implements java.io.Serializable {
-    private static String FINISHED = null; // null evalname and we're finished
     // These do not change during evaluation
     public NameSpace namespace;
+    String value = null;
 
     // ---------------------------------------------------------
     // The following instance variables mutate during evaluation and should
     // be reset by the reset() method where necessary
 
     // For evaluation
-    String value = null;
-    /**
-     * The result is a class
-     */
-    Class asClass;
-    /**
-     * The result is a static method call on the following class
-     */
-    Class classOfStaticMethod;
-    /**
-     * Remaining text to evaluate
-     */
+    /** Remaining text to evaluate */
     private String evalName;
     /**
      * The last part of the name evaluated. This is really only used for this, caller, and super
      * resolution.
      */
     private String lastEvalName;
+
+    private static String FINISHED = null; // null evalname and we're finished
+    private Object evalBaseObject; // base object for current eval
+
+    private int callstackDepth; // number of times eval hit 'this.caller'
 
     //
     //  End mutable instance variables.
@@ -91,10 +86,20 @@ class Name implements java.io.Serializable {
 
     // Note: it's ok to cache class resolution here because when the class
     // space changes the namespace will discard cached names.
-    private Object evalBaseObject; // base object for current eval
-    private int callstackDepth; // number of times eval hit 'this.caller'
+
+    /** The result is a class */
+    Class asClass;
+
+    /** The result is a static method call on the following class */
+    Class classOfStaticMethod;
 
     // End Cached result structures
+
+    private void reset() {
+        evalName = value;
+        evalBaseObject = null;
+        callstackDepth = 0;
+    }
 
     /**
      * This constructor should *not* be used in general. Use NameSpace getNameResolver() which
@@ -109,87 +114,15 @@ class Name implements java.io.Serializable {
     }
 
     /**
-     * @return the enclosing class body namespace or null if not in a class.
-     */
-    static NameSpace getClassNameSpace(NameSpace thisNameSpace) {
-        // is a class instance
-        // if ( thisNameSpace.classInstance != null )
-        if (thisNameSpace.isClass) return thisNameSpace;
-
-        if (thisNameSpace.isMethod
-                && thisNameSpace.getParent() != null
-                // && thisNameSpace.getParent().classInstance != null
-                && thisNameSpace.getParent().isClass) return thisNameSpace.getParent();
-
-        return null;
-    }
-
-    public static boolean isCompound(String value) {
-        return value.indexOf('.') != -1;
-        // return countParts(value) > 1;
-    }
-
-    static int countParts(String value) {
-        if (value == null) return 0;
-
-        int count = 0;
-        int index = -1;
-        while ((index = value.indexOf('.', index + 1)) != -1) count++;
-        return count + 1;
-    }
-
-    static String prefix(String value) {
-        if (!isCompound(value)) return null;
-
-        return prefix(value, countParts(value) - 1);
-    }
-
-    static String prefix(String value, int parts) {
-        if (parts < 1) return null;
-
-        int count = 0;
-        int index = -1;
-
-        while (((index = value.indexOf('.', index + 1)) != -1) && (++count < parts)) {
-            ;
-        }
-
-        return (index == -1) ? value : value.substring(0, index);
-    }
-
-    static String suffix(String name) {
-        if (!isCompound(name)) return null;
-
-        return suffix(name, countParts(name) - 1);
-    }
-
-    public static String suffix(String value, int parts) {
-        if (parts < 1) return null;
-
-        int count = 0;
-        int index = value.length() + 1;
-
-        while (((index = value.lastIndexOf('.', index - 1)) != -1) && (++count < parts)) ;
-
-        return (index == -1) ? value : value.substring(index + 1);
-    }
-
-    private void reset() {
-        evalName = value;
-        evalBaseObject = null;
-        callstackDepth = 0;
-    }
-
-    /**
      * Resolve possibly complex name to an object value.
-     * <p>
+     *
      * <p>Throws EvalError on various failures. A null object value is indicated by a
      * Primitive.NULL. A return type of Primitive.VOID comes from attempting to access an undefined
      * variable.
-     * <p>
+     *
      * <p>Some cases: myVariable myVariable.foo myVariable.foo.bar java.awt.GridBagConstraints.BOTH
      * my.package.stuff.MyClass.someField.someField...
-     * <p>
+     *
      * <p>Interpreter reference is necessary to allow resolution of "this.interpreter" magic field.
      * CallStack reference is necessary to allow resolution of "this.caller" magic field.
      * "this.callstack" magic field.
@@ -199,10 +132,10 @@ class Name implements java.io.Serializable {
     }
 
     /**
-     * @param forceClass if true then resolution will only produce a class. This is necessary to
-     *                   disambiguate in cases where the grammar knows that we want a class; where in general the
-     *                   var path may be taken.
      * @see toObject()
+     * @param forceClass if true then resolution will only produce a class. This is necessary to
+     *     disambiguate in cases where the grammar knows that we want a class; where in general the
+     *     var path may be taken.
      */
     public synchronized Object toObject(
             CallStack callstack, Interpreter interpreter, boolean forceClass) throws UtilEvalError {
@@ -224,33 +157,6 @@ class Name implements java.io.Serializable {
         this.evalBaseObject = returnObject;
         return returnObject;
     }
-
-    /*
-    private String getHelp( String name )
-    throws UtilEvalError
-    {
-    try {
-    // should check for null namespace here
-    return get( "bsh.help."+name, null/interpreter/ );
-    } catch ( Exception e ) {
-    return "usage: "+name;
-    }
-    }
-
-    private String getHelp( Class commandClass )
-    throws UtilEvalError
-    {
-    try {
-    return (String)Reflect.invokeStaticMethod(
-    null/bcm/, commandClass, "usage", null );
-    } catch( Exception e )
-    return "usage: "+name;
-    }
-    }
-    */
-
-    // Static methods that operate on compound ('.' separated) names
-    // I guess we could move these to StringUtil someday
 
     /**
      * Get the next object by consuming one or more components of evalName. Often this consumes just
@@ -374,10 +280,10 @@ class Name implements java.io.Serializable {
         */
 
         if (evalBaseObject == Primitive.NULL) // previous round produced null
-            throw new UtilTargetError(new NullPointerException("模拟 " + value + " 时发生空指针错误"));
+        throw new UtilTargetError(new NullPointerException("模拟 " + value + " 时发生空指针错误"));
 
         if (evalBaseObject == Primitive.VOID) // previous round produced void
-            throw new UtilEvalError("模拟: " + value + " 时未定义变量或类名");
+        throw new UtilEvalError("模拟: " + value + " 时未定义变量或类名");
 
         if (evalBaseObject instanceof Primitive)
             throw new UtilEvalError("不能将原生类型看作对象. 模拟: " + value);
@@ -459,18 +365,18 @@ class Name implements java.io.Serializable {
 
     /**
      * Resolve a variable relative to a This reference.
-     * <p>
+     *
      * <p>This is the general variable resolution method, accommodating special fields from the This
      * context. Together the namespace and interpreter comprise the This context. The callstack, if
      * available allows for the this.caller construct. Optionally interpret special "magic" field
      * names: e.g. interpreter.
-     * <p>
+     *
      * <p>
      *
      * @param callstack may be null, but this is only legitimate in special cases where we are sure
-     *                  resolution will not involve this.caller.
+     *     resolution will not involve this.caller.
      * @param namespace the namespace of the this reference (should be the same as the top of the
-     *                  stack?
+     *     stack?
      */
     Object resolveThisFieldReference(
             CallStack callstack,
@@ -567,12 +473,26 @@ class Name implements java.io.Serializable {
         return obj;
     }
 
+    /** @return the enclosing class body namespace or null if not in a class. */
+    static NameSpace getClassNameSpace(NameSpace thisNameSpace) {
+        // is a class instance
+        // if ( thisNameSpace.classInstance != null )
+        if (thisNameSpace.isClass) return thisNameSpace;
+
+        if (thisNameSpace.isMethod
+                && thisNameSpace.getParent() != null
+                // && thisNameSpace.getParent().classInstance != null
+                && thisNameSpace.getParent().isClass) return thisNameSpace.getParent();
+
+        return null;
+    }
+
     /**
      * Check the cache, else use toObject() to try to resolve to a class identifier.
      *
      * @throws ClassNotFoundException on class not found.
-     * @throws ClassPathException     (type of EvalError) on special case of ambiguous unqualified name
-     *                                after super import.
+     * @throws ClassPathException (type of EvalError) on special case of ambiguous unqualified name
+     *     after super import.
      */
     public synchronized Class toClass() throws ClassNotFoundException, UtilEvalError {
         if (asClass != null) return asClass;
@@ -685,15 +605,15 @@ class Name implements java.io.Serializable {
     /**
      * Invoke the method identified by this name. Performs caching of method resolution using
      * SignatureKey.
-     * <p>
+     *
      * <p>Name contains a wholely unqualfied messy name; resolve it to ( object | static prefix ) +
      * method name and invoke.
-     * <p>
+     *
      * <p>The interpreter is necessary to support 'this.interpreter' references in the called code.
      * (e.g. debug());
+     *
      * <p>
-     * <p>
-     * <p>
+     *
      * <pre>
      * Some cases:
      *
@@ -836,14 +756,14 @@ class Name implements java.io.Serializable {
             // Call on 'This' can never be a command
             BshMethod invokeMethod = null;
             try {
-                invokeMethod = namespace.getMethod("invoke", new Class[]{null, null});
+                invokeMethod = namespace.getMethod("invoke", new Class[] {null, null});
             } catch (UtilEvalError e) {
                 throw e.toEvalError("本地方法调用", callerInfo, callstack);
             }
 
             if (invokeMethod != null)
                 return invokeMethod.invoke(
-                        new Object[]{commandName, args}, interpreter, callstack, callerInfo);
+                        new Object[] {commandName, args}, interpreter, callstack, callerInfo);
 
             throw new EvalError(
                     "找不到命令: " + StringUtil.methodString(commandName, argTypes),
@@ -863,6 +783,82 @@ class Name implements java.io.Serializable {
             }
 
         throw new InterpreterError("命令类型无效");
+    }
+
+    /*
+    private String getHelp( String name )
+    throws UtilEvalError
+    {
+    try {
+    // should check for null namespace here
+    return get( "bsh.help."+name, null/interpreter/ );
+    } catch ( Exception e ) {
+    return "usage: "+name;
+    }
+    }
+
+    private String getHelp( Class commandClass )
+    throws UtilEvalError
+    {
+    try {
+    return (String)Reflect.invokeStaticMethod(
+    null/bcm/, commandClass, "usage", null );
+    } catch( Exception e )
+    return "usage: "+name;
+    }
+    }
+    */
+
+    // Static methods that operate on compound ('.' separated) names
+    // I guess we could move these to StringUtil someday
+
+    public static boolean isCompound(String value) {
+        return value.indexOf('.') != -1;
+        // return countParts(value) > 1;
+    }
+
+    static int countParts(String value) {
+        if (value == null) return 0;
+
+        int count = 0;
+        int index = -1;
+        while ((index = value.indexOf('.', index + 1)) != -1) count++;
+        return count + 1;
+    }
+
+    static String prefix(String value) {
+        if (!isCompound(value)) return null;
+
+        return prefix(value, countParts(value) - 1);
+    }
+
+    static String prefix(String value, int parts) {
+        if (parts < 1) return null;
+
+        int count = 0;
+        int index = -1;
+
+        while (((index = value.indexOf('.', index + 1)) != -1) && (++count < parts)) {;
+        }
+
+        return (index == -1) ? value : value.substring(0, index);
+    }
+
+    static String suffix(String name) {
+        if (!isCompound(name)) return null;
+
+        return suffix(name, countParts(name) - 1);
+    }
+
+    public static String suffix(String value, int parts) {
+        if (parts < 1) return null;
+
+        int count = 0;
+        int index = value.length() + 1;
+
+        while (((index = value.lastIndexOf('.', index - 1)) != -1) && (++count < parts)) ;
+
+        return (index == -1) ? value : value.substring(index + 1);
     }
 
     // end compound name routines

@@ -6,10 +6,10 @@ import java.lang.reflect.Method;
 /**
  * This represents an instance of a bsh method declaration in a particular namespace. This is a thin
  * wrapper around the BSHMethodDeclaration with a pointer to the declaring namespace.
- * <p>
+ *
  * <p>When a method is located in a subordinate namespace or invoked from an arbitrary namespace it
  * must nonetheless execute with its 'super' as the context in which it was declared.
- * <p>
+ *
  * <p>
  */
 /*
@@ -28,14 +28,17 @@ public class BshMethod implements java.io.Serializable {
     // Begin Method components
 
     Modifiers modifiers;
-    // Scripted method body
-    BSHBlock methodBody;
     private String name;
     private Class creturnType;
+
     // Arguments
     private String[] paramNames;
     private int numArgs;
     private Class[] cparamTypes;
+
+    // Scripted method body
+    BSHBlock methodBody;
+
     // Java Method, for a BshObject that delegates to a real Java method
     private Method javaMethod;
     private Object javaObject;
@@ -109,7 +112,7 @@ public class BshMethod implements java.io.Serializable {
      * Get the return type of the method.
      *
      * @return Returns null for a loosely typed return value, Void.TYPE for a void return type, or
-     * the Class of the type.
+     *     the Class of the type.
      */
     /*
     Note: bshmethod needs to re-evaluate the method return type here.
@@ -142,13 +145,13 @@ public class BshMethod implements java.io.Serializable {
      * provide access to the text of the construct that invoked the method through the namespace.
      *
      * @param callerInfo is the BeanShell AST node representing the method invocation. It is used to
-     *                   print the line number and text of errors in EvalError exceptions. If the node is null
-     *                   here error messages may not be able to point to the precise location and text of the
-     *                   error.
-     * @param callstack  is the callstack. If callstack is null a new one will be created with the
-     *                   declaring namespace of the method on top of the stack (i.e. it will look for purposes of
-     *                   the method invocation like the method call occurred in the declaring (enclosing)
-     *                   namespace in which the method is defined).
+     *     print the line number and text of errors in EvalError exceptions. If the node is null
+     *     here error messages may not be able to point to the precise location and text of the
+     *     error.
+     * @param callstack is the callstack. If callstack is null a new one will be created with the
+     *     declaring namespace of the method on top of the stack (i.e. it will look for purposes of
+     *     the method invocation like the method call occurred in the declaring (enclosing)
+     *     namespace in which the method is defined).
      */
     public Object invoke(
             Object[] argValues, Interpreter interpreter, CallStack callstack, SimpleNode callerInfo)
@@ -161,17 +164,17 @@ public class BshMethod implements java.io.Serializable {
      * the node representing the method invocation It is used primarily for debugging in order to
      * provide access to the text of the construct that invoked the method through the namespace.
      *
-     * @param callerInfo        is the BeanShell AST node representing the method invocation. It is used to
-     *                          print the line number and text of errors in EvalError exceptions. If the node is null
-     *                          here error messages may not be able to point to the precise location and text of the
-     *                          error.
-     * @param callstack         is the callstack. If callstack is null a new one will be created with the
-     *                          declaring namespace of the method on top of the stack (i.e. it will look for purposes of
-     *                          the method invocation like the method call occurred in the declaring (enclosing)
-     *                          namespace in which the method is defined).
+     * @param callerInfo is the BeanShell AST node representing the method invocation. It is used to
+     *     print the line number and text of errors in EvalError exceptions. If the node is null
+     *     here error messages may not be able to point to the precise location and text of the
+     *     error.
+     * @param callstack is the callstack. If callstack is null a new one will be created with the
+     *     declaring namespace of the method on top of the stack (i.e. it will look for purposes of
+     *     the method invocation like the method call occurred in the declaring (enclosing)
+     *     namespace in which the method is defined).
      * @param overrideNameSpace When true the method is executed in the namespace on the top of the
-     *                          stack instead of creating its own local namespace. This allows it to be used in
-     *                          constructors.
+     *     stack instead of creating its own local namespace. This allows it to be used in
+     *     constructors.
      */
     Object invoke(
             Object[] argValues,
@@ -226,7 +229,7 @@ public class BshMethod implements java.io.Serializable {
         // If null callstack
         if (callstack == null) callstack = new CallStack(declaringNameSpace);
 
-        if (argValues == null) argValues = new Object[]{};
+        if (argValues == null) argValues = new Object[] {};
 
         // Cardinality (number of args) mismatch
         if (argValues.length != numArgs) {

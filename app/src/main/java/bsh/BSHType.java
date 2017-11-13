@@ -3,7 +3,6 @@ package bsh;
 import java.lang.reflect.Array;
 
 class BSHType extends SimpleNode implements BshClassManager.Listener {
-    String descriptor;
     /**
      * baseType is used during evaluation of full type and retained for the case where we are an
      * array type. In the case where we are not an array this will be the same as type.
@@ -14,35 +13,17 @@ class BSHType extends SimpleNode implements BshClassManager.Listener {
      * e.g. 2 for String[][];
      */
     private int arrayDims;
-    /**
-     * Internal cache of the type. Cleared on classloader change.
-     */
+
+    /** Internal cache of the type. Cleared on classloader change. */
     private Class type;
+
+    String descriptor;
 
     BSHType(int id) {
         super(id);
     }
 
-    public static String getTypeDescriptor(Class clas) {
-        if (clas == Boolean.TYPE) return "Z";
-        if (clas == Character.TYPE) return "C";
-        if (clas == Byte.TYPE) return "B";
-        if (clas == Short.TYPE) return "S";
-        if (clas == Integer.TYPE) return "I";
-        if (clas == Long.TYPE) return "J";
-        if (clas == Float.TYPE) return "F";
-        if (clas == Double.TYPE) return "D";
-        if (clas == Void.TYPE) return "V";
-        // Is getName() ok?  test with 1.1
-        String name = clas.getName().replace('.', '/');
-
-        if (name.startsWith("[") || name.endsWith(";")) return name;
-        else return "L" + name.replace('.', '/') + ";";
-    }
-
-    /**
-     * Used by the grammar to indicate dimensions of array types during parsing.
-     */
+    /** Used by the grammar to indicate dimensions of array types during parsing. */
     public void addArrayDimension() {
         arrayDims++;
     }
@@ -138,7 +119,6 @@ class BSHType extends SimpleNode implements BshClassManager.Listener {
     public Class getBaseType() {
         return baseType;
     }
-
     /**
      * If we are an array type this will be non zero and indicate the dimensionality of the array.
      * e.g. 2 for String[][];
@@ -150,5 +130,22 @@ class BSHType extends SimpleNode implements BshClassManager.Listener {
     public void classLoaderChanged() {
         type = null;
         baseType = null;
+    }
+
+    public static String getTypeDescriptor(Class clas) {
+        if (clas == Boolean.TYPE) return "Z";
+        if (clas == Character.TYPE) return "C";
+        if (clas == Byte.TYPE) return "B";
+        if (clas == Short.TYPE) return "S";
+        if (clas == Integer.TYPE) return "I";
+        if (clas == Long.TYPE) return "J";
+        if (clas == Float.TYPE) return "F";
+        if (clas == Double.TYPE) return "D";
+        if (clas == Void.TYPE) return "V";
+        // Is getName() ok?  test with 1.1
+        String name = clas.getName().replace('.', '/');
+
+        if (name.startsWith("[") || name.endsWith(";")) return name;
+        else return "L" + name.replace('.', '/') + ";";
     }
 }

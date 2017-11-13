@@ -5,18 +5,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * A namespace in which methods, variables, and imports (class names) live. This is package public
  * because it is used in the implementation of some bsh commands. However for normal use you should
  * be using methods on bsh.Interpreter to interact with your scripts.
- * <p>
+ *
  * <p>A bsh.This object is a thin layer over a NameSpace that associates it with an Interpreter
  * instance. Together they comprise a Bsh scripted object context.
- * <p>
+ *
  * <p>Note: I'd really like to use collections here, but we have to keep this compatible with JDK1.1
  */
 /*
@@ -35,17 +33,43 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
     // Begin instance data
     // Note: if we add something here we should reset it in the clear() method.
 
+    /**
+     * The name of this namespace. If the namespace is a method body namespace then this is the name
+     * of the method. If it's a class or class instance then it's the name of the class.
+     */
+    private String nsName;
+
+    private NameSpace parent;
+    private Hashtable<String, Variable> variables;
+    private Hashtable methods;
+
     protected Hashtable importedClasses;
+    private Vector importedPackages;
+    private Vector importedCommands;
+    private Vector importedObjects;
+    private Vector importedStatic;
+    private String packageName;
+
+    private transient BshClassManager classManager;
+
+    // See notes in getThis()
+    private This thisReference;
+
+    /** Name resolver objects */
+    private Hashtable names;
+
     /**
      * The node associated with the creation of this namespace. This is used support
      * getInvocationLine() and getInvocationText().
      */
     SimpleNode callerInfoNode;
+
     /**
      * Note that the namespace is a method body namespace. This is used for printing stack traces in
      * exceptions.
      */
     boolean isMethod;
+
     /**
      * Note that the namespace is a class body or class instance namespace. This is used for
      * controlling static/object import precedence, etc.
@@ -55,29 +79,29 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
     NameSpace, but we'll start here.
     */
     boolean isClass;
+
     Class classStatic;
     Object classInstance;
-    Vector nameSourceListeners;
-    /**
-     * The name of this namespace. If the namespace is a method body namespace then this is the name
-     * of the method. If it's a class or class instance then it's the name of the class.
-     */
-    private String nsName;
-    private NameSpace parent;
-    private Hashtable<String, Variable> variables;
-    private Hashtable methods;
-    private Vector importedPackages;
-    private Vector importedCommands;
-    private Vector importedObjects;
-    private Vector importedStatic;
-    private String packageName;
-    private transient BshClassManager classManager;
-    // See notes in getThis()
-    private This thisReference;
-    /**
-     * Name resolver objects
-     */
-    private Hashtable names;
+
+    void setClassStatic(Class clas) {
+        this.classStatic = clas;
+        importStatic(clas);
+    }
+
+    void setClassInstance(Object instance) {
+        this.classInstance = instance;
+        importObject(instance);
+    }
+
+    Object getClassInstance() throws UtilEvalError {
+        if (classInstance != null) return classInstance;
+
+        if (classStatic != null
+        // || ( getParent()!=null && getParent().classStatic != null )
+        ) throw new UtilEvalError("不能从静态上下文中引用类示例.");
+        else throw new InterpreterError("找不到类实例'this': " + this);
+    }
+
     /**
      * Local class cache for classes resolved through this namespace using getClass() (taking into
      * account imports). Only unqualified class names are cached here (those which might be
@@ -85,14 +109,23 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
      */
     private transient Hashtable classCache;
 
+    // End instance data
+
+    // Begin constructors
+
     /**
      * @parent the parent namespace of this namespace. Child namespaces inherit all variables and
-     * methods of their parent and can (of course) override / shadow them.
+     *     methods of their parent and can (of course) override / shadow them.
      */
     public NameSpace(NameSpace parent, String name) {
         // Note: in this case parent must have a class manager.
         this(parent, null, name);
     }
+
+    //    public NameSpace( BshClassManager classManager, String name )
+    //	{
+    //		this( null, classManager, name );
+    //	}
 
     public NameSpace(NameSpace parent, BshClassManager classManager, String name) {
         // We might want to do this here rather than explicitly in Interpreter
@@ -108,46 +141,10 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         if (classManager != null) classManager.addListener(this);
     }
 
-    // End instance data
-
-    // Begin constructors
-
-    /**
-     * This is a helper method for working inside of bsh scripts and commands. In that context it is
-     * impossible to see a ClassIdentifier object for what it is. Attempting to access a method on a
-     * ClassIdentifier will look like a static method invocation.
-     * <p>
-     * <p>This method is in NameSpace for convenience (you don't have to import bsh.ClassIdentifier
-     * to use it );
-     */
-    public static Class identifierToClass(ClassIdentifier ci) {
-        return ci.getTargetClass();
-    }
-
-    //    public NameSpace( BshClassManager classManager, String name )
-    //	{
-    //		this( null, classManager, name );
-    //	}
-
-    void setClassStatic(Class clas) {
-        this.classStatic = clas;
-        importStatic(clas);
-    }
-
     // End constructors
 
-    Object getClassInstance() throws UtilEvalError {
-        if (classInstance != null) return classInstance;
-
-        if (classStatic != null
-            // || ( getParent()!=null && getParent().classStatic != null )
-                ) throw new UtilEvalError("不能从静态上下文中引用类示例.");
-        else throw new InterpreterError("找不到类实例'this': " + this);
-    }
-
-    void setClassInstance(Object instance) {
-        this.classInstance = instance;
-        importObject(instance);
+    public void setName(String name) {
+        this.nsName = name;
     }
 
     /**
@@ -158,8 +155,12 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         return this.nsName;
     }
 
-    public void setName(String name) {
-        this.nsName = name;
+    /**
+     * Set the node associated with the creation of this namespace. This is used in debugging and to
+     * support the getInvocationLine() and getInvocationText() methods.
+     */
+    void setNode(SimpleNode node) {
+        callerInfoNode = node;
     }
 
     /** */
@@ -169,17 +170,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         else return null;
     }
 
-    /**
-     * Set the node associated with the creation of this namespace. This is used in debugging and to
-     * support the getInvocationLine() and getInvocationText() methods.
-     */
-    void setNode(SimpleNode node) {
-        callerInfoNode = node;
-    }
-
-    /**
-     * Resolve name to an object through this namespace.
-     */
+    /** Resolve name to an object through this namespace. */
     public Object get(String name, Interpreter interpreter) throws UtilEvalError {
         CallStack callstack = new CallStack(this);
         return getNameResolver(name).toObject(callstack, interpreter);
@@ -188,15 +179,15 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
     /**
      * Set the variable through this namespace. This method obeys the LOCALSCOPING property to
      * determine how variables are set.
-     * <p>
+     *
      * <p>Note: this method is primarily intended for use internally. If you use this method outside
      * of the bsh package and wish to set variables with primitive values you will have to wrap them
      * using bsh.Primitive.
      *
-     * @param strictJava specifies whether strict java rules are applied.
      * @see bsh.Primitive
-     * <p>Setting a new variable (which didn't exist before) or removing a variable causes a
-     * namespace change.
+     *     <p>Setting a new variable (which didn't exist before) or removing a variable causes a
+     *     namespace change.
+     * @param strictJava specifies whether strict java rules are applied.
      */
     public void setVariable(String name, Object value, boolean strictJava) throws UtilEvalError {
         // if localscoping switch follow strictJava, else recurse
@@ -204,11 +195,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         setVariable(name, value, strictJava, recurse);
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-
-    /**
-     * Set a variable explicitly in the local scope.
-     */
+    /** Set a variable explicitly in the local scope. */
     public Variable setLocalVariable(String name, Object value, boolean strictJava)
             throws UtilEvalError {
         return setVariable(name, value, strictJava, false);
@@ -218,20 +205,20 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
      * Set the value of a the variable 'name' through this namespace. The variable may be an
      * existing or non-existing variable. It may live in this namespace or in a parent namespace if
      * recurse is true.
-     * <p>
+     *
      * <p>Note: This method is not public and does *not* know about LOCALSCOPING. Its caller methods
      * must set recurse intelligently in all situations (perhaps based on LOCALSCOPING).
-     * <p>
+     *
      * <p>Note: this method is primarily intended for use internally. If you use this method outside
      * of the bsh package and wish to set variables with primitive values you will have to wrap them
      * using bsh.Primitive.
      *
-     * @param strictJava specifies whether strict java rules are applied.
-     * @param recurse    determines whether we will search for the variable in our parent's scope
-     *                   before assigning locally.
      * @see bsh.Primitive
-     * <p>Setting a new variable (which didn't exist before) or removing a variable causes a
-     * namespace change.
+     *     <p>Setting a new variable (which didn't exist before) or removing a variable causes a
+     *     namespace change.
+     * @param strictJava specifies whether strict java rules are applied.
+     * @param recurse determines whether we will search for the variable in our parent's scope
+     *     before assigning locally.
      */
     Variable setVariable(String name, Object value, boolean strictJava, boolean recurse)
             throws UtilEvalError {
@@ -269,9 +256,11 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+
     /**
      * Sets a variable or property. See "setVariable" for rules regarding scoping.
-     * <p>
+     *
      * <p>We first check for the existence of the variable. If it exists, we set it. If the variable
      * does not exist we look for a property. If the property exists and is writable we set it.
      * Finally, if neither the variable or the property exist, we create a new variable.
@@ -287,9 +276,9 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
 
     /**
      * Set a variable or property explicitly in the local scope.
-     * <p>
+     *
      * <p>Sets a variable or property. See "setLocalVariable" for rules regarding scoping.
-     * <p>
+     *
      * <p>We first check for the existence of the variable. If it exists, we set it. If the variable
      * does not exist we look for a property. If the property exists and is writable we set it.
      * Finally, if neither the variable or the property exist, we create a new variable.
@@ -301,16 +290,16 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
 
     /**
      * Set the value of a the variable or property 'name' through this namespace.
-     * <p>
+     *
      * <p>Sets a variable or property. See "setVariableOrProperty" for rules regarding scope.
-     * <p>
+     *
      * <p>We first check for the existence of the variable. If it exists, we set it. If the variable
      * does not exist we look for a property. If the property exists and is writable we set it.
      * Finally, if neither the variable or the property exist, we create a new variable.
      *
      * @param strictJava specifies whether strict java rules are applied.
-     * @param recurse    determines whether we will search for the variable in our parent's scope
-     *                   before assigning locally.
+     * @param recurse determines whether we will search for the variable in our parent's scope
+     *     before assigning locally.
      */
     void setVariableOrProperty(String name, Object value, boolean strictJava, boolean recurse)
             throws UtilEvalError {
@@ -363,9 +352,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         return new Variable(name, type, lhs);
     }
 
-    /**
-     * Remove the variable from the namespace.
-     */
+    /** Remove the variable from the namespace. */
     public void unsetVariable(String name) {
         if (variables != null) {
             variables.remove(name);
@@ -436,13 +423,6 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         return parent;
     }
 
-    public void setParent(NameSpace parent) {
-        this.parent = parent;
-
-        // If we are disconnected from root we need to handle the def imports
-        if (parent == null) loadDefaultImports();
-    }
-
     /**
      * Get the parent namespace' This reference or this namespace' This reference if we are the top.
      */
@@ -464,7 +444,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
      * A This object is a thin layer over a namespace, comprising a bsh object context. It handles
      * things like the interface types the bsh object supports and aspects of method invocation on
      * it.
-     * <p>
+     *
      * <p>The declaringInterpreter is here to support callbacks from Java through generated proxies.
      * The scripted object "remembers" who created it for things like printing messages and other
      * per-interpreter phenomenon when called externally from Java.
@@ -508,9 +488,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         this.classManager = classManager;
     }
 
-    /**
-     * Used for serialization
-     */
+    /** Used for serialization */
     public void prune() {
         // Cut off from parent, we must have our own class manager.
         // Can't do this in the run() command (needs to resolve stuff)
@@ -525,9 +503,16 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         setParent(null);
     }
 
+    public void setParent(NameSpace parent) {
+        this.parent = parent;
+
+        // If we are disconnected from root we need to handle the def imports
+        if (parent == null) loadDefaultImports();
+    }
+
     /**
      * Get the specified variable or property in this namespace or a parent namespace.
-     * <p>
+     *
      * <p>We first search for a variable name, and then a property.
      *
      * @return The variable or property value or Primitive.VOID if neither is defined.
@@ -539,12 +524,12 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
 
     /**
      * Get the specified variable in this namespace or a parent namespace.
-     * <p>
+     *
      * <p>Note: this method is primarily intended for use internally. If you use this method outside
      * of the bsh package you will have to use Primitive.unwrap() to get primitive values.
      *
+     * @see Primitive#unwrap( Object )
      * @return The variable value or Primitive.VOID if it is not defined.
-     * @see Primitive#unwrap(Object)
      */
     public Object getVariable(String name) throws UtilEvalError {
         return getVariable(name, true);
@@ -554,12 +539,12 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
      * Get the specified variable in this namespace.
      *
      * @param recurse If recurse is true then we recursively search through parent namespaces for
-     *                the variable.
-     *                <p>Note: this method is primarily intended for use internally. If you use this method
-     *                outside of the bsh package you will have to use Primitive.unwrap() to get primitive
-     *                values.
+     *     the variable.
+     *     <p>Note: this method is primarily intended for use internally. If you use this method
+     *     outside of the bsh package you will have to use Primitive.unwrap() to get primitive
+     *     values.
+     * @see Primitive#unwrap( Object )
      * @return The variable value or Primitive.VOID if it is not defined.
-     * @see Primitive#unwrap(Object)
      */
     public Object getVariable(String name, boolean recurse) throws UtilEvalError {
         Variable var = getVariableImpl(name, recurse);
@@ -569,7 +554,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
     /**
      * Locate a variable and return the Variable object with optional recursion through parent name
      * spaces.
-     * <p>
+     *
      * <p>If this namespace is static, return only static variables.
      *
      * @return the Variable value or null if it is not defined
@@ -614,18 +599,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         return (var == null) ? Primitive.VOID : var.getValue();
     }
 
-    /**
-     * Dissallow static vars outside of a class
-     *
-     * @param name is here just to allow the error message to use it protected void
-     *     checkVariableModifiers( String name, Modifiers modifiers ) throws UtilEvalError { if (
-     *     modifiers!=null && modifiers.hasModifier("static") ) throw new UtilEvalError( "Can't
-     *     declare static variable outside of class: "+name ); }
-     */
-
-    /**
-     * @deprecated See #setTypedVariable( String, Class, Object, Modifiers )
-     */
+    /** @deprecated See #setTypedVariable( String, Class, Object, Modifiers ) */
     public void setTypedVariable(String name, Class type, Object value, boolean isFinal)
             throws UtilEvalError {
         Modifiers modifiers = new Modifiers();
@@ -639,14 +613,14 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
      * types, null for object types). An existing typed variable may only be set to the same type.
      * If an untyped variable of the same name exists it will be overridden with the new typed var.
      * The set will perform a Types.getAssignableForm() on the value if necessary.
-     * <p>
+     *
      * <p>Note: this method is primarily intended for use internally. If you use this method outside
      * of the bsh package and wish to set variables with primitive values you will have to wrap them
      * using bsh.Primitive.
      *
-     * @param value     If value is null, you'll get the default value for the type
-     * @param modifiers may be null
      * @see bsh.Primitive
+     * @param value If value is null, you'll get the default value for the type
+     * @param modifiers may be null
      */
     public void setTypedVariable(String name, Class type, Object value, Modifiers modifiers)
             throws UtilEvalError {
@@ -685,10 +659,19 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
     }
 
     /**
+     * Dissallow static vars outside of a class
+     *
+     * @param name is here just to allow the error message to use it protected void
+     *     checkVariableModifiers( String name, Modifiers modifiers ) throws UtilEvalError { if (
+     *     modifiers!=null && modifiers.hasModifier("static") ) throw new UtilEvalError( "Can't
+     *     declare static variable outside of class: "+name ); }
+     */
+
+    /**
      * Note: this is primarily for internal use.
      *
-     * @see Interpreter#source(String)
-     * @see Interpreter#eval(String)
+     * @see Interpreter#source( String )
+     * @see Interpreter#eval( String )
      */
     public void setMethod(String name, BshMethod method) throws UtilEvalError {
         // checkMethodModifiers( method );
@@ -704,12 +687,12 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
             v.addElement(method);
             methods.put(name, v);
         } else // Vector
-            ((Vector) m).addElement(method);
+        ((Vector) m).addElement(method);
     }
 
     /**
-     * @see #getMethod(String, Class [], boolean)
-     * @see #getMethod(String, Class [])
+     * @see #getMethod( String, Class [], boolean )
+     * @see #getMethod( String, Class [] )
      */
     public BshMethod getMethod(String name, Class[] sig) throws UtilEvalError {
         return getMethod(name, sig, false);
@@ -717,15 +700,15 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
 
     /**
      * Get the bsh method matching the specified signature declared in this name space or a parent.
-     * <p>
+     *
      * <p>Note: this method is primarily intended for use internally. If you use this method outside
      * of the bsh package you will have to be familiar with BeanShell's use of the Primitive wrapper
      * class.
      *
-     * @param declaredOnly if true then only methods declared directly in this namespace will be
-     *                     found and no inherited or imported methods will be visible.
-     * @return the BshMethod or null if not found
      * @see bsh.Primitive
+     * @return the BshMethod or null if not found
+     * @param declaredOnly if true then only methods declared directly in this namespace will be
+     *     found and no inherited or imported methods will be visible.
      */
     public BshMethod getMethod(String name, Class[] sig, boolean declaredOnly)
             throws UtilEvalError {
@@ -747,7 +730,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
                     Vector vm = (Vector) m;
                     ma = new BshMethod[vm.size()];
                     vm.copyInto(ma);
-                } else ma = new BshMethod[]{(BshMethod) m};
+                } else ma = new BshMethod[] {(BshMethod) m};
 
                 // Apply most specific signature matching
                 Class[][] candidates = new Class[ma.length][];
@@ -767,9 +750,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         return method;
     }
 
-    /**
-     * Import a class name. Subsequent imports override earlier ones
-     */
+    /** Import a class name. Subsequent imports override earlier ones */
     public void importClass(String name) {
         if (importedClasses == null) importedClasses = new Hashtable();
 
@@ -777,9 +758,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         nameSpaceChanged();
     }
 
-    /**
-     * subsequent imports override earlier ones
-     */
+    /** subsequent imports override earlier ones */
     public void importPackage(String name) {
         if (importedPackages == null) importedPackages = new Vector();
 
@@ -817,24 +796,24 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
      * A command is a scripted method or compiled command class implementing a specified method
      * signature. Commands are loaded from the classpath and may be imported using the
      * importCommands() method.
-     * <p>
+     *
      * <p>This method searches the imported commands packages for a script or command object
      * corresponding to the name of the method. If it is a script the script is sourced into this
      * namespace and the BshMethod for the requested signature is returned. If it is a compiled
      * class the class is returned. (Compiled command classes implement static invoke() methods).
-     * <p>
+     *
      * <p>The imported packages are searched in reverse order, so that later imports take priority.
      * Currently only the first object (script or class) with the appropriate name is checked. If
      * another, overloaded form, is located in another package it will not currently be found. This
      * could be fixed.
-     * <p>
+     *
      * <p>
      *
-     * @param name     is the name of the desired command method
-     * @param argTypes is the signature of the desired command method.
      * @return a BshMethod, Class, or null if no such command is found.
+     * @param name is the name of the desired command method
+     * @param argTypes is the signature of the desired command method.
      * @throws UtilEvalError if loadScriptedCommand throws UtilEvalError i.e. on errors loading a
-     *                       script that was found
+     *     script that was found
      */
     public Object getCommand(String name, Class[] argTypes, Interpreter interpreter)
             throws UtilEvalError {
@@ -920,7 +899,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
      * Load a command script from the input stream and find the BshMethod in the target namespace.
      *
      * @throws UtilEvalError on error in parsing the script or if the the method is not found after
-     *                       parsing the script.
+     *     parsing the script.
      */
     /*
     If we want to support multiple commands in the command path we need to
@@ -956,9 +935,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         return meth;
     }
 
-    /**
-     * Helper that caches class.
-     */
+    /** Helper that caches class. */
     void cacheClass(String name, Class c) {
         if (classCache == null) {
             classCache = new Hashtable();
@@ -978,19 +955,19 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         Class c = getClassImpl(name);
         if (c != null) return c;
         else
-            // implement the recursion for getClassImpl()
-            if (parent != null) return parent.getClass(name);
-            else return null;
+        // implement the recursion for getClassImpl()
+        if (parent != null) return parent.getClass(name);
+        else return null;
     }
 
     /**
      * Implementation of getClass()
-     * <p>
+     *
      * <p>Load a class through this namespace taking into account imports.
-     * <p>
+     *
      * <p>Check the cache first. If an unqualified name look for imported class or package. Else try
      * to load absolute name.
-     * <p>
+     *
      * <p>This method implements caching of unqualified names (normally imports). Qualified names
      * are cached by the BshClassManager. Unqualified absolute class names (e.g. unpackaged Foo) are
      * cached too so that we don't go searching through the imports for them each time.
@@ -1125,9 +1102,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         return names;
     }
 
-    /**
-     * Helper for implementing NameSource
-     */
+    /** Helper for implementing NameSource */
     protected void getAllNamesAux(Vector vec) {
         Enumeration varNames = variables.keys();
         while (varNames.hasMoreElements()) vec.addElement(varNames.nextElement());
@@ -1138,17 +1113,14 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         if (parent != null) parent.getAllNamesAux(vec);
     }
 
-    /**
-     * Implements NameSource Add a listener who is notified upon changes to names in this space.
-     */
+    Vector nameSourceListeners;
+    /** Implements NameSource Add a listener who is notified upon changes to names in this space. */
     public void addNameSourceListener(NameSource.Listener listener) {
         if (nameSourceListeners == null) nameSourceListeners = new Vector();
         nameSourceListeners.addElement(listener);
     }
 
-    /**
-     * Perform "import *;" causing the entire classpath to be mapped. This can take a while.
-     */
+    /** Perform "import *;" causing the entire classpath to be mapped. This can take a while. */
     public void doSuperImport() throws UtilEvalError {
         getClassManager().doSuperImport();
     }
@@ -1177,11 +1149,11 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
      * Invoke a method in this namespace with the specified args and interpreter reference. No
      * caller information or call stack is required. The method will appear as if called externally
      * from Java.
-     * <p>
+     *
      * <p>
      *
      * @see bsh.This.invokeMethod( String methodName, Object [] args, Interpreter interpreter,
-     * CallStack callstack, SimpleNode callerInfo, boolean )
+     *     CallStack callstack, SimpleNode callerInfo, boolean )
      */
     public Object invokeMethod(String methodName, Object[] args, Interpreter interpreter)
             throws EvalError {
@@ -1190,11 +1162,11 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
 
     /**
      * This method simply delegates to This.invokeMethod();
-     * <p>
+     *
      * <p>
      *
      * @see bsh.This.invokeMethod( String methodName, Object [] args, Interpreter interpreter,
-     * CallStack callstack, SimpleNode callerInfo )
+     *     CallStack callstack, SimpleNode callerInfo )
      */
     public Object invokeMethod(
             String methodName,
@@ -1207,16 +1179,12 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
                 .invokeMethod(methodName, args, interpreter, callstack, callerInfo, false);
     }
 
-    /**
-     * Clear all cached classes and names
-     */
+    /** Clear all cached classes and names */
     public void classLoaderChanged() {
         nameSpaceChanged();
     }
 
-    /**
-     * Clear all cached classes and names
-     */
+    /** Clear all cached classes and names */
     public void nameSpaceChanged() {
         classCache = null;
         names = null;
@@ -1224,7 +1192,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
 
     /**
      * Import standard packages. Currently:
-     * <p>
+     *
      * <pre>
      * importClass("bsh.EvalError");
      * importClass("bsh.Interpreter");
@@ -1260,15 +1228,15 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
     /**
      * This is the factory for Name objects which resolve names within this namespace (e.g.
      * toObject(), toClass(), toLHS()).
-     * <p>
+     *
      * <p>This was intended to support name resolver caching, allowing Name objects to cache info
      * about the resolution of names for performance reasons. However this not proven useful yet.
-     * <p>
+     *
      * <p>We'll leave the caching as it will at least minimize Name object creation.
-     * <p>
+     *
      * <p>(This method would be called getName() if it weren't already used for the simple name of
      * the NameSpace)
-     * <p>
+     *
      * <p>This method was public for a time, which was a mistake. Use get() instead.
      */
     Name getNameResolver(String ambigname) {
@@ -1297,6 +1265,18 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
     }
 
     /**
+     * This is a helper method for working inside of bsh scripts and commands. In that context it is
+     * impossible to see a ClassIdentifier object for what it is. Attempting to access a method on a
+     * ClassIdentifier will look like a static method invocation.
+     *
+     * <p>This method is in NameSpace for convenience (you don't have to import bsh.ClassIdentifier
+     * to use it );
+     */
+    public static Class identifierToClass(ClassIdentifier ci) {
+        return ci.getTargetClass();
+    }
+
+    /**
      * Clear all variables, methods, and imports from this namespace. If this namespace is the root,
      * it will be reset to the default imports.
      *
@@ -1319,7 +1299,7 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
      * method / command or variable is found locally in this namespace method / fields of the object
      * will be checked. Objects are checked in the order of import with later imports taking
      * precedence.
-     * <p>
+     *
      * <p>
      */
     /*
@@ -1347,20 +1327,20 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
         nameSpaceChanged();
     }
 
-    String getPackage() {
-        if (packageName != null) return packageName;
-
-        if (parent != null) return parent.getPackage();
-
-        return null;
-    }
-
     /**
      * Set the package name for classes defined in this namespace. Subsequent sets override the
      * package.
      */
     void setPackage(String packageName) {
         this.packageName = packageName;
+    }
+
+    String getPackage() {
+        if (packageName != null) return packageName;
+
+        if (parent != null) return parent.getPackage();
+
+        return null;
     }
 
     /**
@@ -1372,13 +1352,13 @@ public class NameSpace implements java.io.Serializable, BshClassManager.Listener
 
         String accessorName = Reflect.accessorName("set", propName);
 
-        Class[] classArray = new Class[]{value == null ? null : value.getClass()};
+        Class[] classArray = new Class[] {value == null ? null : value.getClass()};
 
         BshMethod m = getMethod(accessorName, classArray);
 
         if (m != null) {
             try {
-                invokeMethod(accessorName, new Object[]{value}, interp);
+                invokeMethod(accessorName, new Object[] {value}, interp);
                 // m.invoke(new Object[] {value}, interp);
                 return true;
             } catch (EvalError ee) {

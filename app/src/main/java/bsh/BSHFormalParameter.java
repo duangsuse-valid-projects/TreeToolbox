@@ -1,8 +1,6 @@
 package bsh;
 
-/**
- * A formal parameter declaration. For loose variable declaration type is null.
- */
+/** A formal parameter declaration. For loose variable declaration type is null. */
 class BSHFormalParameter extends SimpleNode {
     public static final Class UNTYPED = null;
     public String name;
@@ -23,9 +21,7 @@ class BSHFormalParameter extends SimpleNode {
             return "Ljava/lang/Object;"; // Object type
     }
 
-    /**
-     * Evaluate the type.
-     */
+    /** Evaluate the type. */
     public Object eval(CallStack callstack, Interpreter interpreter) throws EvalError {
         if (jjtGetNumChildren() > 0)
             type = ((BSHType) jjtGetChild(0)).getType(callstack, interpreter);

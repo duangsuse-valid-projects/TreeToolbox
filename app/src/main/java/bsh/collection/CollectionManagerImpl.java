@@ -1,8 +1,7 @@
 package bsh.collection;
 
-import java.util.Map;
-
 import bsh.BshIterator;
+import java.util.Map;
 
 /**
  * Dynamically loaded extension supporting post 1.1 collections iterator.

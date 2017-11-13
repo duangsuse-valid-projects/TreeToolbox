@@ -1,34 +1,20 @@
 package bsh;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FilterInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.PrintStream;
-import java.io.Reader;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.io.*;
+import java.lang.reflect.*;
 
 /**
  * The BeanShell script interpreter.
- * <p>
+ *
  * <p>An instance of Interpreter can be used to source scripts and evaluate statements or
  * expressions.
- * <p>
+ *
  * <p>Here are some examples:
+ *
  * <p>
- * <p>
- * <p>
+ *
  * <blockquote>
- * <p>
+ *
  * <pre>
  * Interpeter bsh = new Interpreter();
  *
@@ -60,15 +46,15 @@ import java.lang.reflect.Method;
  * // Use the scripted event handler normally...
  * new JButton.addActionListener( script );
  * </pre>
- * <p>
+ *
  * </blockquote>
- * <p>
+ *
  * <p>In the above examples we showed a single interpreter instance, however you may wish to use
  * many instances, depending on the application and how you structure your scripts. Interpreter
  * instances are very light weight to create, however if you are going to execute the same script
  * repeatedly and require maximum performance you should consider scripting the code as a method and
  * invoking the scripted method each time on the same interpreter instance (using eval()).
- * <p>
+ *
  * <p>See the BeanShell User's Manual for more information.
  */
 public class Interpreter implements Runnable, ConsoleInterface, Serializable {
@@ -88,21 +74,25 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
     // This should be per instance
     static transient PrintStream debug;
     static String systemLineSeparator = "\n"; // default
-    /**
-     * Shared system object visible under bsh.system
-     */
-    static This sharedObject;
 
     static {
         staticInit();
     }
 
-    protected boolean evalOnly, // Interpreter has no input stream, use eval() only
-            interactive; // Interpreter has a user, print prompts, etc.
+    /** Shared system object visible under bsh.system */
+    static This sharedObject;
+
+    /**
+     * Strict Java mode
+     *
+     * @see #setStrictJava( boolean )
+     */
+    private boolean strictJava = false;
 
     /* --- End static members --- */
 
     /* --- Instance data --- */
+
     transient Parser parser;
     NameSpace globalNameSpace;
     transient Reader in;
@@ -110,28 +100,19 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
     transient PrintStream err;
     ConsoleInterface console;
 
-    /**
-     * If this interpeter is a child of another, the parent
-     */
+    /** If this interpeter is a child of another, the parent */
     Interpreter parent;
 
-    /**
-     * The name of the file or other source that this interpreter is reading
-     */
+    /** The name of the file or other source that this interpreter is reading */
     String sourceFileInfo;
-    /**
-     * Strict Java mode
-     *
-     * @see #setStrictJava(boolean)
-     */
-    private boolean strictJava = false;
-    /**
-     * by default in interactive mode System.exit() on EOF
-     */
+
+    /** by default in interactive mode System.exit() on EOF */
     private boolean exitOnEOF = true;
-    /**
-     * Control the verbose printing of results for the show() command.
-     */
+
+    protected boolean evalOnly, // Interpreter has no input stream, use eval() only
+            interactive; // Interpreter has a user, print prompts, etc.
+
+    /** Control the verbose printing of results for the show() command. */
     private boolean showResults;
 
     /* --- End instance data --- */
@@ -139,12 +120,12 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
     /**
      * The main constructor. All constructors should now pass through here.
      *
-     * @param namespace      If namespace is non-null then this interpreter's root namespace will be set
-     *                       to the one provided. If it is null a new one will be created for it.
-     * @param parent         The parent interpreter if this interpreter is a child of another. May be null.
-     *                       Children share a BshClassManager with their parent instance.
+     * @param namespace If namespace is non-null then this interpreter's root namespace will be set
+     *     to the one provided. If it is null a new one will be created for it.
+     * @param parent The parent interpreter if this interpreter is a child of another. May be null.
+     *     Children share a BshClassManager with their parent instance.
      * @param sourceFileInfo An informative string holding the filename or other description of the
-     *                       source from which this interpreter is reading... used for debugging. May be null.
+     *     source from which this interpreter is reading... used for debugging. May be null.
      */
     public Interpreter(
             Reader in,
@@ -205,16 +186,12 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         setConsole(console);
     }
 
-    /**
-     * Construct a new interactive interpreter attached to the specified console.
-     */
+    /** Construct a new interactive interpreter attached to the specified console. */
     public Interpreter(ConsoleInterface console) {
         this(console, null);
     }
 
-    /**
-     * Create an interpreter for evaluation only.
-     */
+    /** Create an interpreter for evaluation only. */
     public Interpreter() {
         this(new StringReader(""), System.out, System.err, false, null);
         evalOnly = true;
@@ -223,9 +200,77 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
 
     // End constructors
 
+    /** Attach a console Note: this method is incomplete. */
+    public void setConsole(ConsoleInterface console) {
+        this.console = console;
+        setu("bsh.console", console);
+        // redundant with constructor
+        setOut(console.getOut());
+        setErr(console.getErr());
+        // need to set the input stream - reinit the parser?
+    }
+
+    private void initRootSystemObject() {
+        BshClassManager bcm = getClassManager();
+        // bsh
+        setu("bsh", new NameSpace(null, bcm, "Bsh Object").getThis(this));
+
+        // init the static shared sharedObject if it's not there yet
+        if (sharedObject == null)
+            sharedObject = new NameSpace(null, bcm, "Bsh Shared System Object").getThis(this);
+        // bsh.system
+        setu("bsh.system", sharedObject);
+        setu("bsh.shared", sharedObject); // alias
+
+        // bsh.help
+        This helpText = new NameSpace(null, bcm, "Bsh Command Help Text").getThis(this);
+        setu("bsh.help", helpText);
+
+        // bsh.cwd
+        try {
+            setu("bsh.cwd", System.getProperty("user.dir"));
+        } catch (SecurityException e) {
+            // applets can't see sys props
+            setu("bsh.cwd", ".");
+        }
+
+        // bsh.interactive
+        setu("bsh.interactive", interactive ? Primitive.TRUE : Primitive.FALSE);
+        // bsh.evalOnly
+        setu("bsh.evalOnly", evalOnly ? Primitive.TRUE : Primitive.FALSE);
+    }
+
     /**
-     * Run the text only interpreter on the command line or specify a file.
+     * Set the global namespace for this interpreter.
+     *
+     * <p>Note: This is here for completeness. If you're using this a lot it may be an indication
+     * that you are doing more work than you have to. For example, caching the interpreter instance
+     * rather than the namespace should not add a significant overhead. No state other than the
+     * debug status is stored in the interpreter.
+     *
+     * <p>All features of the namespace can also be accessed using the interpreter via eval() and
+     * the script variable 'this.namespace' (or global.namespace as necessary).
      */
+    public void setNameSpace(NameSpace globalNameSpace) {
+        this.globalNameSpace = globalNameSpace;
+    }
+
+    /**
+     * Get the global namespace of this interpreter.
+     *
+     * <p>Note: This is here for completeness. If you're using this a lot it may be an indication
+     * that you are doing more work than you have to. For example, caching the interpreter instance
+     * rather than the namespace should not add a significant overhead. No state other than the
+     * debug status is stored in the interpreter.
+     *
+     * <p>All features of the namespace can also be accessed using the interpreter via eval() and
+     * the script variable 'this.namespace' (or global.namespace as necessary).
+     */
+    public NameSpace getNameSpace() {
+        return globalNameSpace;
+    }
+
+    /** Run the text only interpreter on the command line or specify a file. */
     public static void main(String[] args) {
         if (args.length > 0) {
             String filename = args[0];
@@ -283,136 +328,11 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
     public static void invokeMain(Class clas, String[] args) throws Exception {
         Method main =
                 Reflect.resolveJavaMethod(
-                        null /*BshClassManager*/, clas, "main", new Class[]{String[].class}, true);
-        if (main != null) main.invoke(null, new Object[]{args});
+                        null /*BshClassManager*/, clas, "main", new Class[] {String[].class}, true);
+        if (main != null) main.invoke(null, new Object[] {args});
     }
 
-    /**
-     * Print a debug message on debug stream associated with this interpreter only if debugging is
-     * turned on.
-     */
-    public static final void debug(String s) {
-        if (DEBUG) debug.println("// 调试: " + s);
-    }
-
-    public static void redirectOutputToFile(String filename) {
-        try {
-            PrintStream pout = new PrintStream(new FileOutputStream(filename));
-            System.setOut(pout);
-            System.setErr(pout);
-        } catch (IOException e) {
-            System.err.println("不能将输出重定向到 " + filename + " 文件里");
-        }
-    }
-
-    static void staticInit() {
-        /*
-        Apparently in some environments you can't catch the security exception
-        at all...  e.g. as an applet in IE  ... will probably have to work
-        around
-        */
-        try {
-            systemLineSeparator = System.getProperty("line.separator");
-            debug = System.err;
-            DEBUG = Boolean.getBoolean("debug");
-            TRACE = Boolean.getBoolean("trace");
-            LOCALSCOPING = Boolean.getBoolean("localscoping");
-            String outfilename = System.getProperty("outfile");
-            if (outfilename != null) redirectOutputToFile(outfilename);
-        } catch (SecurityException e) {
-            System.err.println("无法初始化静态量:" + e);
-        } catch (Exception e) {
-            System.err.println("无法初始化静态量(2):" + e);
-        } catch (Throwable e) {
-            System.err.println("无法初始化静态量(3):" + e);
-        }
-    }
-
-    public static String getSaveClassesDir() {
-        return System.getProperty("saveClasses");
-    }
-
-    public static boolean getSaveClasses() {
-        return getSaveClassesDir() != null;
-    }
-
-    // begin source and eval
-
-    /**
-     * Attach a console Note: this method is incomplete.
-     */
-    public void setConsole(ConsoleInterface console) {
-        this.console = console;
-        setu("bsh.console", console);
-        // redundant with constructor
-        setOut(console.getOut());
-        setErr(console.getErr());
-        // need to set the input stream - reinit the parser?
-    }
-
-    private void initRootSystemObject() {
-        BshClassManager bcm = getClassManager();
-        // bsh
-        setu("bsh", new NameSpace(null, bcm, "Bsh Object").getThis(this));
-
-        // init the static shared sharedObject if it's not there yet
-        if (sharedObject == null)
-            sharedObject = new NameSpace(null, bcm, "Bsh Shared System Object").getThis(this);
-        // bsh.system
-        setu("bsh.system", sharedObject);
-        setu("bsh.shared", sharedObject); // alias
-
-        // bsh.help
-        This helpText = new NameSpace(null, bcm, "Bsh Command Help Text").getThis(this);
-        setu("bsh.help", helpText);
-
-        // bsh.cwd
-        try {
-            setu("bsh.cwd", System.getProperty("user.dir"));
-        } catch (SecurityException e) {
-            // applets can't see sys props
-            setu("bsh.cwd", ".");
-        }
-
-        // bsh.interactive
-        setu("bsh.interactive", interactive ? Primitive.TRUE : Primitive.FALSE);
-        // bsh.evalOnly
-        setu("bsh.evalOnly", evalOnly ? Primitive.TRUE : Primitive.FALSE);
-    }
-
-    /**
-     * Get the global namespace of this interpreter.
-     * <p>
-     * <p>Note: This is here for completeness. If you're using this a lot it may be an indication
-     * that you are doing more work than you have to. For example, caching the interpreter instance
-     * rather than the namespace should not add a significant overhead. No state other than the
-     * debug status is stored in the interpreter.
-     * <p>
-     * <p>All features of the namespace can also be accessed using the interpreter via eval() and
-     * the script variable 'this.namespace' (or global.namespace as necessary).
-     */
-    public NameSpace getNameSpace() {
-        return globalNameSpace;
-    }
-
-    /**
-     * Set the global namespace for this interpreter.
-     * <p>
-     * <p>Note: This is here for completeness. If you're using this a lot it may be an indication
-     * that you are doing more work than you have to. For example, caching the interpreter instance
-     * rather than the namespace should not add a significant overhead. No state other than the
-     * debug status is stored in the interpreter.
-     * <p>
-     * <p>All features of the namespace can also be accessed using the interpreter via eval() and
-     * the script variable 'this.namespace' (or global.namespace as necessary).
-     */
-    public void setNameSpace(NameSpace globalNameSpace) {
-        this.globalNameSpace = globalNameSpace;
-    }
-
-    /**
-     * Run interactively. (printing prompts, etc.)
-     */
+    /** Run interactively. (printing prompts, etc.) */
     public void run() {
         if (evalOnly) throw new RuntimeException("bsh 解释器: 没有流");
 
@@ -510,9 +430,9 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         if (interactive && exitOnEOF) System.exit(0);
     }
 
-    /**
-     * Read text from fileName and eval it.
-     */
+    // begin source and eval
+
+    /** Read text from fileName and eval it. */
     public Object source(String filename, NameSpace nameSpace)
             throws FileNotFoundException, IOException, EvalError {
         File file = pathToFile(filename);
@@ -525,23 +445,19 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         }
     }
 
-    /**
-     * Read text from fileName and eval it. Convenience method. Use the global namespace.
-     */
+    /** Read text from fileName and eval it. Convenience method. Use the global namespace. */
     public Object source(String filename) throws FileNotFoundException, IOException, EvalError {
         return source(filename, globalNameSpace);
     }
 
-    // end source and eval
-
     /**
      * Spawn a non-interactive local interpreter to evaluate text in the specified namespace.
-     * <p>
+     *
      * <p>Return value is the evaluated object (or corresponding primitive wrapper).
      *
      * @param sourceFileInfo is for information purposes only. It is used to display error messages
-     *                       (and in the future may be made available to the script).
-     * @throws EvalError   on script problems
+     *     (and in the future may be made available to the script).
+     * @throws EvalError on script problems
      * @throws TargetError on unhandled exceptions from the script
      */
     /*
@@ -553,8 +469,9 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
     compare them side by side and see what they do differently, aside from the
     exception handling.
     */
+
     public Object eval(Reader in, NameSpace nameSpace, String sourceFileInfo
-            /*, CallStack callstack */) throws EvalError {
+            /*, CallStack callstack */ ) throws EvalError {
         Object retVal = null;
         if (Interpreter.DEBUG) debug("模拟: nameSpace = " + nameSpace);
 
@@ -659,29 +576,18 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         return Primitive.unwrap(retVal);
     }
 
-    // ConsoleInterface
-    // The interpreter reflexively implements the console interface that it
-    // uses.  Should clean this up by using an inner class to implement the
-    // console for us.
-
-    /**
-     * Evaluate the inputstream in this interpreter's global namespace.
-     */
+    /** Evaluate the inputstream in this interpreter's global namespace. */
     public Object eval(Reader in) throws EvalError {
         return eval(in, globalNameSpace, "(模拟流)");
     }
 
-    /**
-     * Evaluate the string in this interpreter's global namespace.
-     */
+    /** Evaluate the string in this interpreter's global namespace. */
     public Object eval(String statements) throws EvalError {
         if (Interpreter.DEBUG) debug("从字符串模拟: " + statements);
         return eval(statements, globalNameSpace);
     }
 
-    /**
-     * Evaluate the string in the specified namespace.
-     */
+    /** Evaluate the string in the specified namespace. */
     public Object eval(String statements, NameSpace nameSpace) throws EvalError {
 
         String s = (statements.endsWith(";") ? statements : statements + ";");
@@ -695,6 +601,8 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         return s;
     }
 
+    // end source and eval
+
     /**
      * Print an error message in a standard format on the output stream associated with this
      * interpreter. On the GUI console this will appear in red, etc.
@@ -707,7 +615,10 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         }
     }
 
-    // End ConsoleInterface
+    // ConsoleInterface
+    // The interpreter reflexively implements the console interface that it
+    // uses.  Should clean this up by using an inner class to implement the
+    // console for us.
 
     /**
      * Get the input stream associated with this interpreter. This may be be stdin or the GUI
@@ -717,11 +628,6 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         return in;
     }
 
-    /*
-    Primary interpreter set and get variable methods
-    Note: These are squeltching errors... should they?
-    */
-
     /**
      * Get the outptut stream associated with this interpreter. This may be be stdout or the GUI
      * console.
@@ -730,20 +636,12 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         return out;
     }
 
-    public void setOut(PrintStream out) {
-        this.out = out;
-    }
-
     /**
      * Get the error output stream associated with this interpreter. This may be be stderr or the
      * GUI console.
      */
     public PrintStream getErr() {
         return err;
-    }
-
-    public void setErr(PrintStream err) {
-        this.err = err;
     }
 
     public final void println(Object o) {
@@ -759,9 +657,22 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         }
     }
 
+    // End ConsoleInterface
+
     /**
-     * Get the value of the name. name may be any value. e.g. a variable or field
+     * Print a debug message on debug stream associated with this interpreter only if debugging is
+     * turned on.
      */
+    public static final void debug(String s) {
+        if (DEBUG) debug.println("// 调试: " + s);
+    }
+
+    /*
+    Primary interpreter set and get variable methods
+    Note: These are squeltching errors... should they?
+    */
+
+    /** Get the value of the name. name may be any value. e.g. a variable or field */
     public Object get(String name) throws EvalError {
         try {
             Object ret = globalNameSpace.get(name, this);
@@ -771,9 +682,7 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         }
     }
 
-    /**
-     * Unchecked get for internal use
-     */
+    /** Unchecked get for internal use */
     Object getu(String name) {
         try {
             return get(name);
@@ -796,15 +705,13 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
                 LHS lhs = globalNameSpace.getNameResolver(name).toLHS(callstack, this);
                 lhs.assign(value, false);
             } else // optimization for common case
-                globalNameSpace.setVariable(name, value, false);
+            globalNameSpace.setVariable(name, value, false);
         } catch (UtilEvalError e) {
             throw e.toEvalError(SimpleNode.JAVACODE, callstack);
         }
     }
 
-    /**
-     * Unchecked set for internal use
-     */
+    /** Unchecked set for internal use */
     void setu(String name, Object value) {
         try {
             set(name, value);
@@ -813,13 +720,9 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         }
     }
 
-    // end primary set and get methods
-
     public void set(String name, long value) throws EvalError {
         set(name, new Primitive(value));
     }
-
-    /*	Methods for interacting with Parser */
 
     public void set(String name, int value) throws EvalError {
         set(name, new Primitive(value));
@@ -833,15 +736,11 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         set(name, new Primitive(value));
     }
 
-    /*	End methods for interacting with Parser */
-
     public void set(String name, boolean value) throws EvalError {
         set(name, value ? Primitive.TRUE : Primitive.FALSE);
     }
 
-    /**
-     * Unassign the variable name. Name should evaluate to a variable.
-     */
+    /** Unassign the variable name. Name should evaluate to a variable. */
     public void unset(String name) throws EvalError {
         /*
         We jump through some hoops here to handle arbitrary cases like
@@ -861,13 +760,15 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         }
     }
 
+    // end primary set and get methods
+
     /**
      * Get a reference to the interpreter (global namespace), cast to the specified interface type.
      * Assuming the appropriate methods of the interface are defined in the interpreter, then you
      * may use this interface from Java, just like any other Java object.
-     * <p>
+     *
      * <p>For example:
-     * <p>
+     *
      * <pre>
      * Interpreter interpreter = new Interpreter();
      * // define a method called run()
@@ -877,36 +778,36 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
      * Runnable runnable =
      * (Runnable)interpreter.getInterface( Runnable.class );
      * </pre>
-     * <p>
+     *
      * <p>Note that the interpreter does *not* require that any or all of the methods of the
      * interface be defined at the time the interface is generated. However if you attempt to invoke
      * one that is not defined you will get a runtime exception.
-     * <p>
+     *
      * <p>Note also that this convenience method has exactly the same effect as evaluating the
      * script:
-     * <p>
+     *
      * <pre>
      * (Type)this;
      * </pre>
-     * <p>
+     *
      * <p>For example, the following is identical to the previous example:
+     *
      * <p>
-     * <p>
-     * <p>
+     *
      * <pre>
      * // Fetch a reference to the interpreter as a Runnable
      * Runnable runnable =
      * (Runnable)interpreter.eval( "(Runnable)this" );
      * </pre>
-     * <p>
+     *
      * <p><em>Version requirement</em> Although standard Java interface types are always available,
      * to be used with arbitrary interfaces this feature requires that you are using Java 1.3 or
      * greater.
-     * <p>
+     *
      * <p>
      *
      * @throws EvalError if the interface cannot be generated because the version of Java does not
-     *                   support the proxy mechanism.
+     *     support the proxy mechanism.
      */
     public Object getInterface(Class interf) throws EvalError {
         try {
@@ -915,6 +816,8 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
             throw e.toEvalError(SimpleNode.JAVACODE, new CallStack());
         }
     }
+
+    /*	Methods for interacting with Parser */
 
     private JJTParserState get_jjtree() {
         return parser.jjtree;
@@ -928,6 +831,8 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         return parser.Line();
     }
 
+    /*	End methods for interacting with Parser */
+
     void loadRCFiles() {
         try {
             String rcfile =
@@ -940,9 +845,7 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         }
     }
 
-    /**
-     * Localize a path to the file name based on the bsh.cwd interpreter working directory.
-     */
+    /** Localize a path to the file name based on the bsh.cwd interpreter working directory. */
     public File pathToFile(String fileName) throws IOException {
         File file = new File(fileName);
 
@@ -957,23 +860,33 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         return new File(file.getCanonicalPath());
     }
 
+    public static void redirectOutputToFile(String filename) {
+        try {
+            PrintStream pout = new PrintStream(new FileOutputStream(filename));
+            System.setOut(pout);
+            System.setErr(pout);
+        } catch (IOException e) {
+            System.err.println("不能将输出重定向到 " + filename + " 文件里");
+        }
+    }
+
     /**
      * Set an external class loader to be used as the base classloader for BeanShell. The base
      * classloader is used for all classloading unless/until the
      * addClasspath()/setClasspath()/reloadClasses() commands are called to modify the interpreter's
      * classpath. At that time the new paths /updated paths are added on top of the base
      * classloader.
-     * <p>
+     *
      * <p>BeanShell will use this at the same point it would otherwise use the plain
      * Class.forName(). i.e. if no explicit classpath management is done from the script
      * (addClassPath(), setClassPath(), reloadClasses()) then BeanShell will only use the supplied
      * classloader. If additional classpath management is done then BeanShell will perform that in
      * addition to the supplied external classloader. However BeanShell is not currently able to
      * reload classes supplied through the external classloader.
-     * <p>
+     *
      * <p>
      *
-     * @see BshClassManager#setClassLoader(ClassLoader)
+     * @see BshClassManager#setClassLoader( ClassLoader )
      */
     public void setClassLoader(ClassLoader externalCL) {
         getClassManager().setClassLoader(externalCL);
@@ -988,23 +901,44 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
     }
 
     /**
-     * @see #setStrictJava(boolean)
-     */
-    public boolean getStrictJava() {
-        return this.strictJava;
-    }
-
-    /**
      * Set strict Java mode on or off. This mode attempts to make BeanShell syntax behave as Java
      * syntax, eliminating conveniences like loose variables, etc. When enabled, variables are
      * required to be declared or initialized before use and method arguments are reqired to have
      * types.
-     * <p>
+     *
      * <p>This mode will become more strict in a future release when classes are interpreted and
      * there is an alternative to scripting objects as method closures.
      */
     public void setStrictJava(boolean b) {
         this.strictJava = b;
+    }
+
+    /** @see #setStrictJava( boolean ) */
+    public boolean getStrictJava() {
+        return this.strictJava;
+    }
+
+    static void staticInit() {
+        /*
+        Apparently in some environments you can't catch the security exception
+        at all...  e.g. as an applet in IE  ... will probably have to work
+        around
+        */
+        try {
+            systemLineSeparator = System.getProperty("line.separator");
+            debug = System.err;
+            DEBUG = Boolean.getBoolean("debug");
+            TRACE = Boolean.getBoolean("trace");
+            LOCALSCOPING = Boolean.getBoolean("localscoping");
+            String outfilename = System.getProperty("outfile");
+            if (outfilename != null) redirectOutputToFile(outfilename);
+        } catch (SecurityException e) {
+            System.err.println("无法初始化静态量:" + e);
+        } catch (Exception e) {
+            System.err.println("无法初始化静态量(2):" + e);
+        } catch (Throwable e) {
+            System.err.println("无法初始化静态量(3):" + e);
+        }
     }
 
     /**
@@ -1030,9 +964,15 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         return parent;
     }
 
-    /**
-     * De-serialization setup. Default out and err streams to stdout, stderr if they are null.
-     */
+    public void setOut(PrintStream out) {
+        this.out = out;
+    }
+
+    public void setErr(PrintStream err) {
+        this.err = err;
+    }
+
+    /** De-serialization setup. Default out and err streams to stdout, stderr if they are null. */
     private void readObject(ObjectInputStream stream)
             throws java.io.IOException, ClassNotFoundException {
         stream.defaultReadObject();
@@ -1064,7 +1004,7 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
      * Specify whether, in interactive mode, the interpreter exits Java upon end of input. If true,
      * when in interactive mode the interpreter will issue a System.exit(0) upon eof. If false the
      * interpreter no System.exit() will be done.
-     * <p>
+     *
      * <p>Note: if you wish to cause an EOF externally you can try closing the input stream. This is
      * not guaranteed to work in older versions of Java due to Java limitations, but should work in
      * newer JDK/JREs. (That was the motivation for the Java NIO package).
@@ -1074,6 +1014,13 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
     }
 
     /**
+     * Turn on/off the verbose printing of results as for the show() command. If this interpreter
+     * has a parent the call is delegated. See the BeanShell show() command.
+     */
+    public void setShowResults(boolean showResults) {
+        this.showResults = showResults;
+    }
+    /**
      * Show on/off verbose printing status for the show() command. See the BeanShell show() command.
      * If this interpreter has a parent the call is delegated.
      */
@@ -1081,11 +1028,11 @@ public class Interpreter implements Runnable, ConsoleInterface, Serializable {
         return showResults;
     }
 
-    /**
-     * Turn on/off the verbose printing of results as for the show() command. If this interpreter
-     * has a parent the call is delegated. See the BeanShell show() command.
-     */
-    public void setShowResults(boolean showResults) {
-        this.showResults = showResults;
+    public static String getSaveClassesDir() {
+        return System.getProperty("saveClasses");
+    }
+
+    public static boolean getSaveClasses() {
+        return getSaveClassesDir() != null;
     }
 }

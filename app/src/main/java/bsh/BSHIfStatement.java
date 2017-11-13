@@ -5,18 +5,6 @@ class BSHIfStatement extends SimpleNode {
         super(id);
     }
 
-    public static boolean evaluateCondition(
-            SimpleNode condExp, CallStack callstack, Interpreter interpreter) throws EvalError {
-        Object obj = condExp.eval(callstack, interpreter);
-        if (obj instanceof Primitive) {
-            if (obj == Primitive.VOID) throw new EvalError("情况参数被模拟为void", condExp, callstack);
-            obj = ((Primitive) obj).getValue();
-        }
-
-        if (obj instanceof Boolean) return ((Boolean) obj).booleanValue();
-        else throw new EvalError("情况参数必须被模拟为Boolean或boolean.", condExp, callstack);
-    }
-
     public Object eval(CallStack callstack, Interpreter interpreter) throws EvalError {
         Object ret = null;
 
@@ -27,5 +15,17 @@ class BSHIfStatement extends SimpleNode {
 
         if (ret instanceof ReturnControl) return ret;
         else return Primitive.VOID;
+    }
+
+    public static boolean evaluateCondition(
+            SimpleNode condExp, CallStack callstack, Interpreter interpreter) throws EvalError {
+        Object obj = condExp.eval(callstack, interpreter);
+        if (obj instanceof Primitive) {
+            if (obj == Primitive.VOID) throw new EvalError("情况参数被模拟为void", condExp, callstack);
+            obj = ((Primitive) obj).getValue();
+        }
+
+        if (obj instanceof Boolean) return ((Boolean) obj).booleanValue();
+        else throw new EvalError("情况参数必须被模拟为Boolean或boolean.", condExp, callstack);
     }
 }
