@@ -9,3 +9,4 @@ import android.net.Uri;
 //splash
 
 //beginActivity
+me.beginActivity("app");
