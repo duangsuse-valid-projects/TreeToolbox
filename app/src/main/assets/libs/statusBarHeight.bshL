@@ -1,0 +1,11 @@
+import android.os.*;
+import android.widget.*;
+import android.view.*;
+import android.graphics.*;
+
+Rect rectangle = new Rect();
+Window window = me.getWindow();
+window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+int statusBarHeight = rectangle.top;
+int contentViewTop = window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
+int titleBarHeight= contentViewTop - statusBarHeight;

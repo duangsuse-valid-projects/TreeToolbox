@@ -1,1 +1,6 @@
-main.bsh
+main.bsh;
+mods.list;
+app.bshA;
+libs/imports.bshL;
+libs/statusBarHeight.bshL;
+libs/tintBar.bshL
