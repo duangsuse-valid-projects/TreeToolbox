@@ -69,6 +69,8 @@ public class PrepareStubApp {
         }
         for (String i : pathes) {
             try {
+                String parent = new File(file_path + i).getParent();
+                new File(parent).mkdirs();
                 wrtFile(am.open(i), file_path + i);
             } catch (IOException e) {
                 ImportActivity.toast(mContext, "Failed to unzip " + i);
