@@ -9,20 +9,73 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 
-    <application android:icon="@drawable/ic_material_tree">
-        <activity
-            android:name=".MainActivity"
-            android:label="树">
+    <application
+        android:icon="@drawable/ic_material_tree"
+        android:label="树">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".Red"
+            android:enabled="false"
+            android:icon="@drawable/ic_r">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Green"
+            android:enabled="false"
+            android:icon="@drawable/ic_g">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Blue"
+            android:enabled="false"
+            android:icon="@drawable/ic_b">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Yellow"
+            android:enabled="false"
+            android:icon="@drawable/ic_y">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".Dark"
+            android:enabled="false"
+            android:icon="@drawable/ic_d">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".BSHActivity"
-            android:label="BeanShell Activity"></activity>
+            android:icon="@drawable/ic_d"
+            android:label="BeanShell Activity" />
         <activity
             android:name=".ImportActivity"
+            android:icon="@drawable/ic_r"
             android:label="树-Seed">
             <intent-filter
                 android:scheme="http"
@@ -34,6 +87,7 @@
         </activity>
         <activity
             android:name=".ExecActivity"
+            android:icon="@drawable/ic_g"
             android:label="树-Do"
             android:noHistory="true">
             <intent-filter>

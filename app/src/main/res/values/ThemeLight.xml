@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="ThemeLight" parent="android:Theme.Holo.Light">
-
-    </style>
+    <style name="ThemeLight" parent="android:Theme.Holo.Light"></style>
 </resources>

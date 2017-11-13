@@ -25,7 +25,7 @@
     <color name="white">@android:color/white</color>
     <color name="transparent">@android:color/transparent</color>
 
-    <!-- easter egg -->
+    <!-- easter egg QWQ -->
     <color name="TianYiblue">#66ccff</color>
     <color name="YueZhengLingred">#ee0000</color>
 </resources>
