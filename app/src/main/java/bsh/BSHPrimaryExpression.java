@@ -5,12 +5,16 @@ class BSHPrimaryExpression extends SimpleNode {
         super(id);
     }
 
-    /** Evaluate to a value object. */
+    /**
+     * Evaluate to a value object.
+     */
     public Object eval(CallStack callstack, Interpreter interpreter) throws EvalError {
         return eval(false, callstack, interpreter);
     }
 
-    /** Evaluate to a value object. */
+    /**
+     * Evaluate to a value object.
+     */
     public LHS toLHS(CallStack callstack, Interpreter interpreter) throws EvalError {
         Object obj = eval(true, callstack, interpreter);
 
@@ -43,11 +47,11 @@ class BSHPrimaryExpression extends SimpleNode {
                 if (toLHS) obj = ((BSHAmbiguousName) obj).toLHS(callstack, interpreter);
                 else obj = ((BSHAmbiguousName) obj).toObject(callstack, interpreter);
             else
-            // Some arbitrary kind of node
-            if (toLHS)
-                // is this right?
-                throw new EvalError("不能声明到前缀.", this, callstack);
-            else obj = ((SimpleNode) obj).eval(callstack, interpreter);
+                // Some arbitrary kind of node
+                if (toLHS)
+                    // is this right?
+                    throw new EvalError("不能声明到前缀.", this, callstack);
+                else obj = ((SimpleNode) obj).eval(callstack, interpreter);
 
         // return LHS or value object as determined by toLHS
         if (obj instanceof LHS)

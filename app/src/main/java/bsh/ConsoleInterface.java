@@ -1,10 +1,11 @@
 package bsh;
 
-import java.io.*;
+import java.io.PrintStream;
+import java.io.Reader;
 
 /**
  * The capabilities of a minimal console for BeanShell. Stream I/O and optimized print for output.
- *
+ * <p>
  * <p>A simple console may ignore some of these or map them to trivial implementations. e.g. print()
  * with color can be mapped to plain text.
  *

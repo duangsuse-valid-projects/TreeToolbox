@@ -1,6 +1,10 @@
 package bsh;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A namespace which maintains an external map of values held in variables in its scope. This
@@ -11,7 +15,7 @@ import java.util.*;
  * way. Variables are exported each time they are written by BeanShell. Imported variables from the
  * map appear in the BeanShell namespace as untyped variables with no modifiers and shadow any
  * previously defined variables in the scope.
- *
+ * <p>
  * <p>Note: this class is inherentely dependent on Java 1.2 (for Map), however it is not used
  * directly by the core as other than type NameSpace, so no dependency is introduced.
  */
@@ -52,7 +56,9 @@ public class ExternalNameSpace extends NameSpace {
         this.externalMap = externalMap;
     }
 
-    /** Get the map view of this namespace. */
+    /**
+     * Get the map view of this namespace.
+     */
     public Map getMap() {
         return externalMap;
     }

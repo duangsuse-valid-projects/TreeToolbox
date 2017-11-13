@@ -1,7 +1,8 @@
 package bsh;
 
-import bsh.Capabilities.Unavailable;
 import java.lang.reflect.InvocationTargetException;
+
+import bsh.Capabilities.Unavailable;
 
 public abstract class ClassGenerator {
     private static ClassGenerator cg;
@@ -10,7 +11,9 @@ public abstract class ClassGenerator {
         throw new Unavailable("类生成器不可用");
     }
 
-    /** Parse the BSHBlock for the class definition and generate the class. */
+    /**
+     * Parse the BSHBlock for the class definition and generate the class.
+     */
     public abstract Class generateClass(
             String name,
             Modifiers modifiers,

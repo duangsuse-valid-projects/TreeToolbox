@@ -3,10 +3,10 @@ package bsh;
 /**
  * EvalError indicates that we cannot continue evaluating the script or the script has thrown an
  * exception.
- *
+ * <p>
  * <p>EvalError may be thrown for a script syntax error, an evaluation error such as referring to an
  * undefined variable, an internal error.
- *
+ * <p>
  * <p>
  *
  * @see TargetError
@@ -26,7 +26,9 @@ public class EvalError extends Exception {
         if (callstack != null) this.callstack = callstack.copy();
     }
 
-    /** Print the error with line number and stack trace. */
+    /**
+     * Print the error with line number and stack trace.
+     */
     public String toString() {
         String trace;
         if (node != null)
@@ -46,7 +48,9 @@ public class EvalError extends Exception {
         return getMessage() + trace;
     }
 
-    /** Re-throw the error, prepending the specified message. */
+    /**
+     * Re-throw the error, prepending the specified message.
+     */
     public void reThrow(String msg) throws EvalError {
         prependMessage(msg);
         throw this;
@@ -103,7 +107,9 @@ public class EvalError extends Exception {
         return trace;
     }
 
-    /** @see #toString() for a full display of the information */
+    /**
+     * @see #toString() for a full display of the information
+     */
     public String getMessage() {
         return message;
     }
@@ -112,7 +118,9 @@ public class EvalError extends Exception {
         message = s;
     }
 
-    /** Prepend the message if it is non-null. */
+    /**
+     * Prepend the message if it is non-null.
+     */
     protected void prependMessage(String s) {
         if (s == null) return;
 

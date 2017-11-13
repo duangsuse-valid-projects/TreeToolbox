@@ -2,7 +2,7 @@ package bsh;
 
 /**
  * Implement casts.
- *
+ * <p>
  * <p>I think it should be possible to simplify some of the code here by using the
  * Types.getAssignableForm() method, but I haven't looked into it.
  */
@@ -12,7 +12,9 @@ class BSHCastExpression extends SimpleNode {
         super(id);
     }
 
-    /** @return the result of the cast. */
+    /**
+     * @return the result of the cast.
+     */
     public Object eval(CallStack callstack, Interpreter interpreter) throws EvalError {
         NameSpace namespace = callstack.top();
         Class toType = ((BSHType) jjtGetChild(0)).getType(callstack, interpreter);

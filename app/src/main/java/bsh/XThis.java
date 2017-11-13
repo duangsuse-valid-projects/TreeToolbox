@@ -1,28 +1,32 @@
 package bsh;
 
-import java.io.*;
-import java.lang.reflect.*;
+import java.io.NotSerializableException;
+import java.io.ObjectStreamException;
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Hashtable;
 
 /**
  * XThis is a dynamically loaded extension which extends This.java and adds support for the
  * generalized interface proxy mechanism introduced in JDK1.3. XThis allows bsh scripted objects to
  * implement arbitrary interfaces (be arbitrary event listener types).
- *
+ * <p>
  * <p>Note: This module relies on new features of JDK1.3 and will not compile with JDK1.2 or lower.
  * For those environments simply do not compile this class.
- *
+ * <p>
  * <p>Eventually XThis should become simply This, but for backward compatibility we will maintain
  * This without requiring support for the proxy mechanism.
- *
+ * <p>
  * <p>XThis stands for "eXtended This" (I had to call it something).
  *
  * @see JThis See also JThis with explicit JFC support for compatibility.
  * @see This
  */
 public class XThis extends This {
-    /** A cache of proxy interface handlers. Currently just one per interface. */
+    /**
+     * A cache of proxy interface handlers. Currently just one per interface.
+     */
     Hashtable interfaces;
 
     transient InvocationHandler invocationHandler = new Handler();
@@ -35,12 +39,16 @@ public class XThis extends This {
         return "'this的引用 (XThis) 对bsh对象: " + namespace;
     }
 
-    /** Get dynamic proxy for interface, caching those it creates. */
+    /**
+     * Get dynamic proxy for interface, caching those it creates.
+     */
     public Object getInterface(Class clas) {
-        return getInterface(new Class[] {clas});
+        return getInterface(new Class[]{clas});
     }
 
-    /** Get dynamic proxy for interface, caching those it creates. */
+    /**
+     * Get dynamic proxy for interface, caching those it creates.
+     */
     public Object getInterface(Class[] ca) {
         if (interfaces == null) interfaces = new Hashtable();
 
@@ -62,10 +70,10 @@ public class XThis extends This {
 
     /**
      * This is the invocation handler for the dynamic proxy.
-     *
+     * <p>
      * <p>Notes: Inner class for the invocation handler seems to shield this unavailable interface
      * from JDK1.2 VM...
-     *
+     * <p>
      * <p>I don't understand this. JThis works just fine even if those classes aren't there (doesn't
      * it?) This class shouldn't be loaded if an XThis isn't instantiated in NameSpace.java, should
      * it?
@@ -106,7 +114,7 @@ public class XThis extends This {
             */
             BshMethod equalsMethod = null;
             try {
-                equalsMethod = namespace.getMethod("equals", new Class[] {Object.class});
+                equalsMethod = namespace.getMethod("equals", new Class[]{Object.class});
             } catch (UtilEvalError e) {
                 /*leave null*/
             }
@@ -121,7 +129,7 @@ public class XThis extends This {
             */
             BshMethod toStringMethod = null;
             try {
-                toStringMethod = namespace.getMethod("toString", new Class[] {});
+                toStringMethod = namespace.getMethod("toString", new Class[]{});
             } catch (UtilEvalError e) {
                 /*leave null*/
             }
@@ -138,5 +146,7 @@ public class XThis extends This {
             Class[] paramTypes = method.getParameterTypes();
             return Primitive.unwrap(invokeMethod(methodName, Primitive.wrap(args, paramTypes)));
         }
-    };
+    }
+
+    ;
 }

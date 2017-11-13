@@ -5,22 +5,24 @@ import java.lang.reflect.Field;
 /**
  * An LHS is a wrapper for an variable, field, or property. It ordinarily holds the "left hand side"
  * of an assignment and may be either resolved to a value or assigned a value.
- *
+ * <p>
  * <p>There is one special case here termed METHOD_EVAL where the LHS is used in an intermediate
  * evaluation of a chain of suffixes and wraps a method invocation. In this case it may only be
  * resolved to a value and cannot be assigned. (You can't assign a value to the result of a method
  * call e.g. "foo() = 5;").
- *
+ * <p>
  * <p>
  */
 class LHS implements ParserConstants, java.io.Serializable {
-    NameSpace nameSpace;
-    /** The assignment should be to a local variable */
-    boolean localVar;
-
-    /** Identifiers for the various types of LHS. */
+    /**
+     * Identifiers for the various types of LHS.
+     */
     static final int VARIABLE = 0, FIELD = 1, PROPERTY = 2, INDEX = 3, METHOD_EVAL = 4;
-
+    NameSpace nameSpace;
+    /**
+     * The assignment should be to a local variable
+     */
+    boolean localVar;
     int type;
 
     String varName;
@@ -31,8 +33,8 @@ class LHS implements ParserConstants, java.io.Serializable {
 
     /**
      * @param localVar if true the variable is set directly in the This reference's local scope. If
-     *     false recursion to look for the variable definition in parent's scope is allowed. (e.g.
-     *     the default case for undefined vars going to global).
+     *                 false recursion to look for the variable definition in parent's scope is allowed. (e.g.
+     *                 the default case for undefined vars going to global).
      */
     LHS(NameSpace nameSpace, String varName, boolean localVar) {
         type = VARIABLE;
@@ -50,7 +52,9 @@ class LHS implements ParserConstants, java.io.Serializable {
         this.field = field;
     }
 
-    /** Object field LHS Constructor. */
+    /**
+     * Object field LHS Constructor.
+     */
     LHS(Object object, Field field) {
         if (object == null) throw new NullPointerException("架构空的LHS");
 
@@ -59,7 +63,9 @@ class LHS implements ParserConstants, java.io.Serializable {
         this.field = field;
     }
 
-    /** Object property LHS Constructor. */
+    /**
+     * Object property LHS Constructor.
+     */
     LHS(Object object, String propName) {
         if (object == null) throw new NullPointerException("架构空的LHS");
 
@@ -68,7 +74,9 @@ class LHS implements ParserConstants, java.io.Serializable {
         this.propName = propName;
     }
 
-    /** Array index LHS Constructor. */
+    /**
+     * Array index LHS Constructor.
+     */
     LHS(Object array, int index) {
         if (array == null) throw new NullPointerException("架构空的LHS");
 
@@ -113,7 +121,9 @@ class LHS implements ParserConstants, java.io.Serializable {
         throw new InterpreterError("LHS类型");
     }
 
-    /** Assign a value to the LHS. */
+    /**
+     * Assign a value to the LHS.
+     */
     public Object assign(Object val, boolean strictJava) throws UtilEvalError {
         if (type == VARIABLE) {
             // Set the variable in namespace according to localVar flag

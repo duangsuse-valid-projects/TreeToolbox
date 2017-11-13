@@ -2,7 +2,9 @@ package bsh;
 
 import java.util.Hashtable;
 
-/** @author Pat Niemeyer (pat@pat.net) */
+/**
+ * @author Pat Niemeyer (pat@pat.net)
+ */
 /*
 Note: which of these things should be checked at parse time vs. run time?
 */
@@ -10,7 +12,9 @@ public class Modifiers implements java.io.Serializable {
     public static final int CLASS = 0, METHOD = 1, FIELD = 2;
     Hashtable modifiers;
 
-    /** @param context is METHOD or FIELD */
+    /**
+     * @param context is METHOD or FIELD
+     */
     public void addModifier(int context, String name) {
         if (modifiers == null) modifiers = new Hashtable();
 

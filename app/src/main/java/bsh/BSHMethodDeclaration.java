@@ -4,17 +4,14 @@ class BSHMethodDeclaration extends SimpleNode {
     public String name;
 
     // Begin Child node structure evaluated by insureNodesParsed
-
+    public Modifiers modifiers;
     BSHReturnType returnTypeNode;
     BSHFormalParameters paramsNode;
     BSHBlock blockNode;
-    // index of the first throws clause child node
-    int firstThrowsClause;
 
     // End Child node structure evaluated by insureNodesParsed
-
-    public Modifiers modifiers;
-
+    // index of the first throws clause child node
+    int firstThrowsClause;
     // Unsafe caching of type here.
     Class returnType; // null (none), Void.TYPE, or a Class
     int numThrows = 0;
@@ -29,7 +26,7 @@ class BSHMethodDeclaration extends SimpleNode {
      */
     synchronized void insureNodesParsed() {
         if (paramsNode != null) // there is always a paramsNode
-        return;
+            return;
 
         Object firstNode = jjtGetChild(0);
         firstThrowsClause = 1;

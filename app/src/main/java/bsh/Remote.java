@@ -1,8 +1,20 @@
 package bsh;
 
-import java.io.*;
-import java.net.*;
-import java.text.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
+import java.net.URLEncoder;
 
 /**
  * Remote executor class. Posts a script from the command line to a BshServlet or embedded
@@ -21,7 +33,9 @@ public class Remote {
         System.exit(ret);
     }
 
-    /** Evaluate text in the interpreter at url, returning a possible integer return value. */
+    /**
+     * Evaluate text in the interpreter at url, returning a possible integer return value.
+     */
     public static int eval(String url, String text) throws IOException {
         String returnValue = null;
         if (url.startsWith("http:")) {

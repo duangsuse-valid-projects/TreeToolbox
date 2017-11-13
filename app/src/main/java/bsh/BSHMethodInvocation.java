@@ -15,7 +15,9 @@ class BSHMethodInvocation extends SimpleNode {
         return (BSHArguments) jjtGetChild(1);
     }
 
-    /** Evaluate the method invocation with the specified callstack and interpreter */
+    /**
+     * Evaluate the method invocation with the specified callstack and interpreter
+     */
     public Object eval(CallStack callstack, Interpreter interpreter) throws EvalError {
         NameSpace namespace = callstack.top();
         BSHAmbiguousName nameNode = getNameNode();

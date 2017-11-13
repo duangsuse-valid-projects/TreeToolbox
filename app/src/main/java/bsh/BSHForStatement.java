@@ -1,6 +1,8 @@
 package bsh;
 
-/** Implementation of the for(;;) statement. */
+/**
+ * Implementation of the for(;;) statement.
+ */
 class BSHForStatement extends SimpleNode implements ParserConstants {
     public boolean hasForInit;
     public boolean hasExpression;
@@ -23,7 +25,7 @@ class BSHForStatement extends SimpleNode implements ParserConstants {
         if (hasExpression) expression = ((SimpleNode) jjtGetChild(i++));
         if (hasForUpdate) forUpdate = ((SimpleNode) jjtGetChild(i++));
         if (i < jjtGetNumChildren()) // should normally be
-        statement = ((SimpleNode) jjtGetChild(i));
+            statement = ((SimpleNode) jjtGetChild(i));
 
         NameSpace enclosingNameSpace = callstack.top();
         BlockNameSpace forNameSpace = new BlockNameSpace(enclosingNameSpace);

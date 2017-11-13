@@ -1,24 +1,26 @@
 package bsh;
 
-import java.io.*;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.*;
-import java.util.*;
+import java.net.URL;
+import java.util.Hashtable;
 
 /**
  * BshClassManager manages all classloading in BeanShell. It also supports a dynamically loaded
  * extension (bsh.classpath package) which allows classpath extension and class file reloading.
- *
+ * <p>
  * <p>Currently the extension relies on 1.2 for BshClassLoader and weak references.
- *
+ * <p>
  * <p>See http://www.beanshell.org/manual/classloading.html for details on the bsh classloader
  * architecture.
- *
+ * <p>
  * <p>Bsh has a multi-tiered class loading architecture. No class loader is used unless/until the
  * classpath is modified or a class is reloaded.
- *
+ * <p>
  * <p>
  */
 /*
@@ -43,17 +45,14 @@ references in this package.
 <p>
 */
 public class BshClassManager {
-    /** Identifier for no value item. Use a hashtable as a Set. */
+    /**
+     * Identifier for no value item. Use a hashtable as a Set.
+     */
     private static Object NOVALUE = new Object();
     /**
-     * The interpreter which created the class manager This is used to load scripted classes from
-     * source files.
+     * An external classloader supplied by the setClassLoader() command.
      */
-    private Interpreter declaringInterpreter;
-
-    /** An external classloader supplied by the setClassLoader() command. */
     protected ClassLoader externalClassLoader;
-
     /**
      * Global cache for things we know are classes. Note: these should probably be re-implemented
      * with Soft references. (as opposed to strong or Weak)
@@ -64,20 +63,23 @@ public class BshClassManager {
      * re-implemented with Soft references. (as opposed to strong or Weak)
      */
     protected transient Hashtable absoluteNonClasses = new Hashtable();
-
     /**
      * Caches for resolved object and static methods. We keep these maps separate to support fast
      * lookup in the general case where the method may be either.
      */
     protected transient Hashtable resolvedObjectMethods = new Hashtable();
-
     protected transient Hashtable resolvedStaticMethods = new Hashtable();
-
     protected transient Hashtable definingClasses = new Hashtable();
     protected transient Hashtable definingClassesBaseNames = new Hashtable();
-
-    /** @see #associateClass( Class ) */
+    /**
+     * @see #associateClass(Class)
+     */
     protected transient Hashtable associatedClasses = new Hashtable();
+    /**
+     * The interpreter which created the class manager This is used to load scripted classes from
+     * source files.
+     */
+    private Interpreter declaringInterpreter;
 
     /**
      * Create a new instance of the class manager. Class manager instnaces are now associated with
@@ -106,6 +108,17 @@ public class BshClassManager {
         if (interpreter == null) interpreter = new Interpreter();
         manager.declaringInterpreter = interpreter;
         return manager;
+    }
+
+    /**
+     * Annotate the NoClassDefFoundError with some info about the class we were trying to load.
+     */
+    protected static Error noClassDefFound(String className, Error e) {
+        return new NoClassDefFoundError("一个被: " + className + " 需要的类不能被加载:\n" + e.toString());
+    }
+
+    protected static UtilEvalError cmUnavailable() {
+        return new Capabilities.Unavailable("类加载特性现在不可用.");
     }
 
     public boolean classExists(String name) {
@@ -160,12 +173,12 @@ public class BshClassManager {
      * Perform a plain Class.forName() or call the externally provided classloader. If a
      * BshClassManager implementation is loaded the call will be delegated to it, to allow for
      * additional hooks.
-     *
+     * <p>
      * <p>This simply wraps that bottom level class lookup call and provides a central point for
      * monitoring and handling certain Java version dependent bugs, etc.
      *
-     * @see #classForName( String )
      * @return the class
+     * @see #classForName(String)
      */
     public Class plainClassForName(String name) throws ClassNotFoundException {
         Class c = null;
@@ -208,6 +221,7 @@ public class BshClassManager {
 
         return url;
     }
+
     /**
      * Get a resource stream using the BeanShell classpath
      *
@@ -228,7 +242,7 @@ public class BshClassManager {
      * Cache info about whether name is a class or not.
      *
      * @param value if value is non-null, cache the class if value is null, set the flag that it is
-     *     *not* a class to speed later resolution
+     *              *not* a class to speed later resolution
      */
     public void cacheClassInfo(String name, Class value) {
         if (value != null) absoluteClassCache.put(name, value);
@@ -242,7 +256,7 @@ public class BshClassManager {
      * class implementation to be initialized (with the static initializer field). This is utilized
      * by the persistent class generator to allow a generated class to bootstrap an interpreter and
      * rendesvous with its implementation script.
-     *
+     * <p>
      * <p>Class associations currently last for the life of the class manager.
      */
     public void associateClass(Class clas) {
@@ -316,14 +330,19 @@ public class BshClassManager {
         classLoaderChanged();
     }
 
-    public void addClassPath(URL path) throws IOException {}
+    public void addClassPath(URL path) throws IOException {
+    }
 
-    /** Clear all loaders and start over. No class loading. */
+    /**
+     * Clear all loaders and start over. No class loading.
+     */
     public void reset() {
         clearCaches();
     }
 
-    /** Set a new base classpath and create a new base classloader. This means all types change. */
+    /**
+     * Set a new base classpath and create a new base classloader. This means all types change.
+     */
     public void setClassPath(URL[] cp) throws UtilEvalError {
         throw cmUnavailable();
     }
@@ -331,12 +350,19 @@ public class BshClassManager {
     /**
      * Overlay the entire path with a new class loader. Set the base path to the user path + base
      * path.
-     *
+     * <p>
      * <p>No point in including the boot class path (can't reload thos).
      */
     public void reloadAllClasses() throws UtilEvalError {
         throw cmUnavailable();
     }
+
+    /**
+     * This has been removed from the interface to shield the core from the rest of the classpath
+     * package. If you need the classpath you will have to cast the classmanager to its impl.
+     *
+     * <p>public BshClassPath getClassPath() throws ClassPathException;
+     */
 
     /**
      * Reloading classes means creating a new classloader and using it whenever we are asked for
@@ -348,7 +374,7 @@ public class BshClassManager {
 
     /**
      * Reload all classes in the specified package: e.g. "com.sun.tools"
-     *
+     * <p>
      * <p>The special package name "<unpackaged>" can be used to refer to unpackaged classes.
      */
     public void reloadPackage(String pack) throws UtilEvalError {
@@ -356,18 +382,15 @@ public class BshClassManager {
     }
 
     /**
-     * This has been removed from the interface to shield the core from the rest of the classpath
-     * package. If you need the classpath you will have to cast the classmanager to its impl.
-     *
-     * <p>public BshClassPath getClassPath() throws ClassPathException;
+     * Support for "import *;" Hide details in here as opposed to NameSpace.
      */
-
-    /** Support for "import *;" Hide details in here as opposed to NameSpace. */
     protected void doSuperImport() throws UtilEvalError {
         throw cmUnavailable();
     }
 
-    /** A "super import" ("import *") operation has been performed. */
+    /**
+     * A "super import" ("import *") operation has been performed.
+     */
     protected boolean hasSuperImport() {
         return false;
     }
@@ -380,9 +403,11 @@ public class BshClassManager {
         throw cmUnavailable();
     }
 
-    public void addListener(Listener l) {}
+    public void addListener(Listener l) {
+    }
 
-    public void removeListener(Listener l) {}
+    public void removeListener(Listener l) {
+    }
 
     public void dump(PrintWriter pw) {
         pw.println("BshClassManager: 无类管理器.");
@@ -432,7 +457,9 @@ public class BshClassManager {
         return (String) definingClassesBaseNames.get(baseName);
     }
 
-    /** Indicate that the specified class name has been defined and may be loaded normally. */
+    /**
+     * Indicate that the specified class name has been defined and may be loaded normally.
+     */
     protected void doneDefiningClass(String className) {
         String baseName = Name.suffix(className, 1);
         definingClasses.remove(className);
@@ -472,15 +499,7 @@ public class BshClassManager {
         */
     }
 
-    protected void classLoaderChanged() {}
-
-    /** Annotate the NoClassDefFoundError with some info about the class we were trying to load. */
-    protected static Error noClassDefFound(String className, Error e) {
-        return new NoClassDefFoundError("一个被: " + className + " 需要的类不能被加载:\n" + e.toString());
-    }
-
-    protected static UtilEvalError cmUnavailable() {
-        return new Capabilities.Unavailable("类加载特性现在不可用.");
+    protected void classLoaderChanged() {
     }
 
     public static interface Listener {
@@ -490,7 +509,7 @@ public class BshClassManager {
     /**
      * SignatureKey serves as a hash of a method signature on a class for fast lookup of overloaded
      * and general resolved Java methods.
-     *
+     * <p>
      * <p>
      */
     /*
@@ -519,7 +538,7 @@ public class BshClassManager {
             if (hashCode == 0) {
                 hashCode = clas.hashCode() * methodName.hashCode();
                 if (types == null) // no args method
-                return hashCode;
+                    return hashCode;
                 for (int i = 0; i < types.length; i++) {
                     int hc = types[i] == null ? 21 : types[i].hashCode();
                     hashCode = hashCode * (i + 1) + hc;

@@ -1,7 +1,12 @@
 package bsh;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Vector;
 
 /**
  * All of the reflection API code lies here. It is in the form of static utilities. Maybe this
@@ -168,7 +173,7 @@ class Reflect {
 
     /**
      * Get an LHS reference to an object field.
-     *
+     * <p>
      * <p>This method also deals with the field style property access. In the field does not exist
      * we check for a property setter.
      */
@@ -224,7 +229,9 @@ class Reflect {
         }
     }
 
-    /** @throws ReflectError if the field is not found. */
+    /**
+     * @throws ReflectError if the field is not found.
+     */
     /*
     Note: this should really just throw NoSuchFieldException... need
     to change related signatures and code.
@@ -326,19 +333,19 @@ class Reflect {
      * The full blown resolver method. All other method invocation methods delegate to this. The
      * method may be static or dynamic unless staticOnly is set (in which case object may be null).
      * If staticOnly is set then only static methods will be located.
-     *
+     * <p>
      * <p>This method performs caching (caches discovered methods through the class manager and
      * utilizes cached methods.)
-     *
+     * <p>
      * <p>This method determines whether to attempt to use non-public methods based on
      * Capabilities.haveAccessibility() and will set the accessibilty flag on the method as
      * necessary.
-     *
+     * <p>
      * <p>If, when directed to find a static method, this method locates a more specific matching
      * instance method it will throw a descriptive exception analogous to the error that the Java
      * compiler would produce. Note: as of 2.0.x this is a problem because there is no way to work
      * around this with a cast.
-     *
+     * <p>
      * <p>
      *
      * @param staticOnly The method located must be static, the object param may be null.
@@ -413,10 +420,10 @@ class Reflect {
      * classes or interfaces will be returned. In the normal (non-accessible) case this addresses
      * the problem that arises when a package private class or private inner class implements a
      * public interface or derives from a public type.
-     *
+     * <p>
      * <p>This method primarily just delegates to gatherMethodsRecursive()
      *
-     * @see #gatherMethodsRecursive( Class, String, int, boolean, java.util.Vector)
+     * @see #gatherMethodsRecursive(Class, String, int, boolean, java.util.Vector)
      */
     static Method[] getCandidateMethods(
             Class baseClass, String methodName, int numArgs, boolean publicOnly) {
@@ -432,10 +439,10 @@ class Reflect {
     /**
      * Accumulate all methods, optionally including non-public methods, class and interface, in the
      * inheritance tree of baseClass.
-     *
+     * <p>
      * <p>This method is analogous to Class getMethods() which returns all public methods in the
      * inheritance tree.
-     *
+     * <p>
      * <p>In the normal (non-accessible) case this also addresses the problem that arises when a
      * package private class or private inner class implements a public interface or derives from a
      * public type. In other words, sometimes we'll find public methods that we can't use directly
@@ -493,11 +500,11 @@ class Reflect {
     /**
      * Primary object constructor This method is simpler than those that must resolve general method
      * invocation because constructors are not inherited.
-     *
+     * <p>
      * <p>This method determines whether to attempt to use non-public constructors based on
      * Capabilities.haveAccessibility() and will set the accessibilty flag on the method as
      * necessary.
-     *
+     * <p>
      * <p>
      */
     static Object constructObject(Class clas, Object[] args)
@@ -565,8 +572,8 @@ class Reflect {
      * does not take into account Java 5 covariant return types... which I think will require that
      * we find the most derived return type of otherwise identical best matches.
      *
-     * @see #findMostSpecificSignature(Class[], Class[][])
      * @param methods the set of candidate method which differ only in the types of their arguments.
+     * @see #findMostSpecificSignature(Class[], Class[][])
      */
     static Method findMostSpecificMethod(Class[] idealMatch, Method[] methods) {
         // copy signatures into array for findMostSpecificMethod()
@@ -597,8 +604,8 @@ class Reflect {
     */
     static int findMostSpecificSignature(Class[] idealMatch, Class[][] candidates) {
         for (int round = Types.FIRST_ROUND_ASSIGNABLE;
-                round <= Types.LAST_ROUND_ASSIGNABLE;
-                round++) {
+             round <= Types.LAST_ROUND_ASSIGNABLE;
+             round++) {
             Class[] bestMatch = null;
             int bestMatchIndex = -1;
 
@@ -610,9 +617,9 @@ class Reflect {
                 // the new best match.
                 if (Types.isSignatureAssignable(idealMatch, targetMatch, round)
                         && ((bestMatch == null)
-                                || (Types.isSignatureAssignable(
-                                                targetMatch, bestMatch, Types.JAVA_BASE_ASSIGNABLE)
-                                        && !Types.areSignaturesEqual(targetMatch, bestMatch)))) {
+                        || (Types.isSignatureAssignable(
+                        targetMatch, bestMatch, Types.JAVA_BASE_ASSIGNABLE)
+                        && !Types.areSignaturesEqual(targetMatch, bestMatch)))) {
                     bestMatch = targetMatch;
                     bestMatchIndex = i;
                 }
@@ -660,7 +667,7 @@ class Reflect {
 
     public static Object getObjectProperty(Object obj, String propName)
             throws UtilEvalError, ReflectError {
-        Object[] args = new Object[] {};
+        Object[] args = new Object[]{};
 
         Interpreter.debug("准确的访问: ");
         Method method = null;
@@ -697,7 +704,7 @@ class Reflect {
     public static void setObjectProperty(Object obj, String propName, Object value)
             throws ReflectError, UtilEvalError {
         String accessorName = accessorName("set", propName);
-        Object[] args = new Object[] {value};
+        Object[] args = new Object[]{value};
 
         Interpreter.debug("准确的访问: ");
         try {
@@ -729,7 +736,9 @@ class Reflect {
         return className.toString();
     }
 
-    /** returns the dimensionality of the Class returns 0 if the Class is not an array class */
+    /**
+     * returns the dimensionality of the Class returns 0 if the Class is not an array class
+     */
     public static int getArrayDimensions(Class arrayClass) {
         if (!arrayClass.isArray()) return 0;
 

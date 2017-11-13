@@ -4,14 +4,15 @@ import java.util.Hashtable;
 
 /**
  * The map of extended features supported by the runtime in which we live.
- *
+ * <p>
  * <p>This class should be independent of all other bsh classes!
- *
+ * <p>
  * <p>Note that tests for class existence here do *not* use the BshClassManager, as it may require
  * other optional class files to be loaded.
  */
 public class Capabilities {
     private static boolean accessibility = false;
+    private static Hashtable classes = new Hashtable();
 
     public static boolean haveSwing() {
         // classExists caches info for us
@@ -54,7 +55,6 @@ public class Capabilities {
         accessibility = true;
     }
 
-    private static Hashtable classes = new Hashtable();
     /**
      * Use direct Class.forName() to test for the existence of a class. We should not use
      * BshClassManager here because: a) the systems using these tests would probably not load the

@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationTargetException;
  * the script). TargetErrors indicate exceptions which can be caught within the script itself,
  * whereas a general EvalError indicates that the script cannot be evaluated further for some
  * reason.
- *
+ * <p>
  * <p>If the exception is caught within the script it is automatically unwrapped, so the code looks
  * like normal Java code. If the TargetError is thrown from the eval() or interpreter.eval() method
  * it may be caught and unwrapped to determine what exception was thrown.
@@ -71,7 +71,7 @@ public class TargetError extends EvalError {
     /**
      * Extended form of print target error. This indirection is used to print
      * UndeclaredThrowableExceptions which are possible when the proxy mechanism is available.
-     *
+     * <p>
      * <p>We are shielded from compile problems by using a bsh script. This is acceptable here
      * because we're not in a critical path... Otherwise we'd need yet another dynamically loaded
      * module just for this.

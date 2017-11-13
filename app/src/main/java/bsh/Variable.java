@@ -2,7 +2,9 @@ package bsh;
 
 public class Variable implements java.io.Serializable {
     static final int DECLARATION = 0, ASSIGNMENT = 1;
-    /** A null type means an untyped variable */
+    /**
+     * A null type means an untyped variable
+     */
     String name;
 
     Class type = null;
@@ -21,14 +23,18 @@ public class Variable implements java.io.Serializable {
         this(name, (Class) null /*type*/, value, modifiers);
     }
 
-    /** This constructor is used in class generation. */
+    /**
+     * This constructor is used in class generation.
+     */
     Variable(String name, String typeDescriptor, Object value, Modifiers modifiers)
             throws UtilEvalError {
         this(name, (Class) null /*type*/, value, modifiers);
         this.typeDescriptor = typeDescriptor;
     }
 
-    /** @param value may be null if this */
+    /**
+     * @param value may be null if this
+     */
     Variable(String name, Class type, Object value, Modifiers modifiers) throws UtilEvalError {
 
         this.name = name;
@@ -41,8 +47,8 @@ public class Variable implements java.io.Serializable {
      * Set the value of the typed variable.
      *
      * @param value should be an object or wrapped bsh Primitive type. if value is null the
-     *     appropriate default value will be set for the type: e.g. false for boolean, zero for
-     *     integer types.
+     *              appropriate default value will be set for the type: e.g. false for boolean, zero for
+     *              integer types.
      */
     public void setValue(Object value, int context) throws UtilEvalError {
 
@@ -78,7 +84,9 @@ public class Variable implements java.io.Serializable {
         return value;
     }
 
-    /** A type of null means loosely typed variable */
+    /**
+     * A type of null means loosely typed variable
+     */
     public Class getType() {
         return type;
     }
