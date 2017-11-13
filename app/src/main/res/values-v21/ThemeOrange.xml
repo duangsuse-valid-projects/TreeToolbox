@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ThemeOrange" parent="ThemeLight">
+        <item name="android:colorPrimary">@color/orange</item>
+        <item name="android:colorPrimaryDark">@color/deep_orange</item>
+        <item name="android:colorAccent">@color/amber</item>
+    </style>
+</resources>
