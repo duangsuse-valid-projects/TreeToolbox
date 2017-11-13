@@ -36,6 +36,7 @@ License: __GPL v3__
 - [ ] RC4
 - [ ] URL
 ### Web Service Utils
+- [ ] Splash from the Web __N__
 - [ ] Shorten URL __N__
 - [ ] Pastebin __N__
 - [ ] Magnet Search __N__
@@ -81,7 +82,7 @@ License: __GPL v3__
 - [ ] dB meter
 - [ ] wget __N__
 - [ ] Random
-- [ ] Pic Ascii Art __N__
+- [ ] Pic Ascii Art
 - [ ] Text2pic
 - [ ] Picpic
 - [ ] GIF Utils
@@ -98,10 +99,11 @@ License: __GPL v3__
 - [ ] APK Sign
 - [ ] Music player
 - [ ] Toolbox Icon customize __R-__
+>- [ ] Git repo management
 ### Misc
 - [ ] H2 Wallpaper
 - [ ] Color Picker
-- [ ] Direct link get __N__
+- [ ] NetDisk Direct link __N__
 - [ ] Screenshot processor __N-__
 - [ ] Emotion processor __N-__
 - [ ] QQ utils __N-__
