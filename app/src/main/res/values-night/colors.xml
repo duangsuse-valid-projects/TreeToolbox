@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="red">#b71c1c</color>
+    <color name="pink">#880e4f</color>
+    <color name="purple">#4a148c</color>
+    <color name="deep_purple">#4a148c</color>
+    <color name="indigo">#1a237e</color>
+    <color name="blue">#0d47a1</color>
+    <color name="light_blue">#01579b</color>
+    <color name="cyan">#006064</color>
+    <color name="teal">#004d40</color>
+    <color name="green">#1b5e20</color>
+    <color name="light_green">#33691e</color>
+    <color name="lime">#827717</color>
+    <color name="yellow">#f57f17</color>
+    <color name="amber">#ffab00</color>
+    <color name="orange">#e65100</color>
+    <color name="deep_orange">#bf360c</color>
+    <color name="brown">#4e342e</color>
+    <color name="grey">#9E9E9E</color>
+    <color name="blue_grey">#455a64</color>
+
+    <!-- extra -->
+    <color name="black">@android:color/black</color>
+    <color name="white">@android:color/white</color>
+    <color name="transparent">@android:color/transparent</color>
+
+    <!-- easter egg -->
+    <color name="TianYiblue">#66ccff</color>
+    <color name="YueZhengLingred">#ee0000</color>
+</resources>
