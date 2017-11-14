@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
         StringBuilder buffer = new StringBuilder();
         String line;
         while ((line = in.readLine()) != null) {
-            buffer.append(line);
+            buffer.append(line + "\n");
         }
         return buffer.toString();
     }
