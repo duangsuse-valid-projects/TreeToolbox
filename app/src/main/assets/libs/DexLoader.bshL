@@ -3,11 +3,8 @@
 import android.os.Environment;
 import dalvik.system.DexClassLoader;
 
-String fixPath(String path) {
-  return me.getExternalFilesDir(Environment.MEDIA_MOUNTED).getPath() + "/" + path;
-}
-
+me.Import("libs/getAssets.bshL");
 DexClassLoader loadDex(String name) {
   File dexout = me.getCacheDir();
-  return new DexClassLoader(fixPath(name + ".dex"), dexout.getPath(), null, me.getClass().getClassLoader());
+  return new DexClassLoader(assetPath("dexes/" + name + ".dex"), dexout.getPath(), null, me.getClass().getClassLoader());
 }

@@ -34,7 +34,7 @@ android {
     }
     lintOptions {
         abortOnError false
-        disable 'MissingApplicationIcon', 'GoogleAppIndexingWarning', 'AllowBackup', 'UnusedAttribute', 'UnusedResources'
+        disable 'MissingApplicationIcon', 'GoogleAppIndexingWarning', 'AllowBackup', 'UnusedAttribute', 'UnusedResources', 'GradleCompatible'
     }
     productFlavors {
     }

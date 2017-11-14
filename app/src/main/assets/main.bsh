@@ -6,7 +6,5 @@ import android.net.Uri;
 
 //check Update
 
-//splash
-
 //beginActivity
-me.beginActivity("app");
+me.beginActivity("splash");

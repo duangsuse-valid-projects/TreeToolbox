@@ -1,3 +1,4 @@
+//value calc lib
 import android.os.*;
 import android.widget.*;
 import android.view.*;

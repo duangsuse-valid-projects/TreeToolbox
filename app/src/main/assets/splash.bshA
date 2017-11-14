@@ -1,0 +1,4 @@
+//Splash
+
+//begin Main Activity
+me.beginActivity("app");

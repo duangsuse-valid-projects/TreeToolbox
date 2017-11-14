@@ -1,6 +1,7 @@
 main.bsh;
 mods.list;
 app.bshA;
+splash.bshA;
 libs/doImports.bshL;
 libs/statusBarHeight.bshL;
 libs/tintBar.bshL

@@ -2,15 +2,22 @@
   <dictionary name="dse">
     <words>
       <w>beanshell</w>
+      <w>circularanim</w>
       <w>dalvikvm</w>
+      <w>dexes</w>
+      <w>dexout</w>
       <w>duangsuse</w>
+      <w>easyandroidanimations</w>
       <w>fileinput</w>
       <w>htextview</w>
       <w>lingred</w>
+      <w>melnykov</w>
       <w>ngin</w>
       <w>resid</w>
       <w>tian</w>
+      <w>transcode</w>
       <w>ucat</w>
+      <w>wefor</w>
       <w>yiblue</w>
       <w>zheng</w>
     </words>

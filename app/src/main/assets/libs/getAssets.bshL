@@ -1,0 +1,4 @@
+//assets management like get input stream/path, move, etc
+String assetPath(String path) {
+  return me.getExternalFilesDir(Environment.MEDIA_MOUNTED).getPath() + "/" + path;
+}
