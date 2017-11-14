@@ -27,5 +27,20 @@
 -dontnote bsh.ClassGenerator
 -dontnote bsh.BshClassManager
 -keep class org.duangsuse.** { *; }
+#keep beanshell engine
 -keep class bsh.** { *; }
 -keepclassmembers class android.os.Build { int SDK_INT; }
+#keep animated textview
+-keep class com.hanks.htextview.** { *; }
+#keep cricle anim
+-keep class top.wefor.circularanim.** { *; }
+#floating action button
+-keep class com.melnykov.fab.** { *; }
+#extra anim
+-keep class com.easyandroidanimations.library.** { *; }
+#v4
+-keep class android.support.v4.widget.CircleImageView { *; }
+-keep class android.support.v4.widget.SwipeRefreshLayout { *; }
+-keep class android.support.v4.view.ViewPager { *; }
+-keep class android.support.v4.widget.DrawerLayout { *; }
+-keep class android.support.v4.widget.MaterialProgressDrawable { *; }
