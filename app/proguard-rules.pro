@@ -42,5 +42,29 @@
 -keep class android.support.v4.widget.CircleImageView { *; }
 -keep class android.support.v4.widget.SwipeRefreshLayout { *; }
 -keep class android.support.v4.view.ViewPager { *; }
--keep class android.support.v4.widget.DrawerLayout { *; }
+-keep class android.support.v4.widget.DrawerLayout.** { *; }
 -keep class android.support.v4.widget.MaterialProgressDrawable { *; }
+#alua support
+-keep class android.widget.PageAdapter { *; }
+-keep class android.widget.ArrayPageAdapter { *; }
+-keep class android.widget.ArrayListAdapter { *; }
+-keep class android.widget.CardView { *; }
+-keep class android.widget.ExListView { *; }
+-keep class android.widget.PageLayout.** { *; }
+-keep class android.widget.PageView.** { *; }
+-keep class android.widget.PullingLayout.** { *; }
+-keep class android.widget.RoundRectDrawable { *; }
+-keep class android.app.FloatWindow { *; }
+
+-keep class android.widget.DrawerLayout$DrawerListener { *; }
+-keep class android.widget.PageView$OnAdapterChangeListener { *; }
+-keep class android.widget.PageLayout$OnPageChangeListener { *; }
+-keep class android.widget.PageView$OnPageChangeListener { *; }
+-keep class android.widget.PullingLayout$OnLoadMoreListener { *; }
+-keep class android.widget.PullingLayout$OnPullDownListener { *; }
+-keep class android.widget.PullingLayout$OnPullUpListener { *; }
+-keep class android.widget.PullingLayout$OnRefreshListener { *; }
+-keep class android.widget.SlidingLayout$OnMenuClosedListener { *; }
+-keep class android.widget.SlidingLayout$OnMenuOpenedListener { *; }
+-keep class android.widget.SlidingLayout$OnMenuStateChangeListener { *; }
+-keep class android.widget.PullingLayout { *; }
