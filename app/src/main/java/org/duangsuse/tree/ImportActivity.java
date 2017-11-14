@@ -15,6 +15,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.FileInputStream;
+import java.io.InputStream;
 
 import bsh.Interpreter;
 
@@ -44,8 +45,8 @@ public class ImportActivity extends Activity {
         }
         if (getIntent().getBooleanExtra(run_field, false)) {
             try {
-                readFile(getIntent().getStringExtra(name_field));
-            } catch (NullPointerException e) {
+                readFile(new FileInputStream(getIntent().getStringExtra(name_field)));
+            } catch (Exception e) {
                 toast(this, name_field + " field not found, check your intent");
             }
             exec(program);
@@ -53,20 +54,22 @@ public class ImportActivity extends Activity {
             finish();
             return;
         }
-        String filepath = null;
+        InputStream fileinput = null;
         try {
-            filepath = getIntent().getData().getPath();
-        } catch (NullPointerException e) {
+            //noinspection ConstantConditions
+            fileinput = getContentResolver().openInputStream(getIntent().getData());
+        } catch (Exception e) {
             // toast(this, "File path not found, check your intent.");
         }
         try {
-            if (filepath == null) filepath = getIntent().getStringExtra(name_field);
-        } catch (NullPointerException e) {
+            if (fileinput == null)
+                fileinput = openFileInput(getIntent().getStringExtra(name_field));
+        } catch (Exception e) {
             toast(this, "neither file path nor file url found");
             finish();
             return;
         }
-        readFile(filepath);
+        readFile(fileinput);
 
         s = new Intent();
         mEditText = new EditText(this);
@@ -128,10 +131,9 @@ public class ImportActivity extends Activity {
         finish();
     }
 
-    public void readFile(String name) {
+    public void readFile(InputStream is) {
         try {
-            FileInputStream fin = new FileInputStream(name);
-            program = MainActivity.inputStream2String(fin);
+            program = MainActivity.inputStream2String(is);
         } catch (Exception e) {
             Toast.makeText(ImportActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
         }

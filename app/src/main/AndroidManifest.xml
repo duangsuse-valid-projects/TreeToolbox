@@ -3,18 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="org.duangsuse.tree">
 
+    <!-- needed by many features have to do with network -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- read and write app data& input/output files -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <!-- needed for fake msg -->
     <uses-permission android:name="android.permission.WRITE_SMS" />
+    <!-- needed for installing module(script) shortcuts -->
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 
     <application
-        tools:replace="android:label, android:icon"
         android:icon="@drawable/ic_material_tree"
-        android:label="树">
+        android:label="树"
+        tools:replace="android:label, android:icon">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

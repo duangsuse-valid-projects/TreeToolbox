@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 
 import bsh.Interpreter;
 
@@ -45,6 +46,9 @@ public class BSHActivity extends Activity {
     public String onKeyLongPressCall;
     public String onLowMemoryCall;
     public String onWindowFocusChangedCall;
+    public String onTouchEventCall;
+    public String onKeyDownCall;
+    public String onKeyUpCall;
 
     public Bundle bundle;
 
@@ -281,12 +285,17 @@ public class BSHActivity extends Activity {
     /*@Override
     public boolean onCreateThumbnail(Bitmap outBitmap, Canvas canvas) {
         return super.onCreateThumbnail(outBitmap, canvas);
-    }
+    }*/
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (onKeyDownCall != null) {
+            SetParam("code", keyCode);
+            SetParam("event", event);
+            InvokeMethod(onKeyDownCall);
+        }
         return super.onKeyDown(keyCode, event);
-    }*/
+    }
 
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
@@ -309,10 +318,15 @@ public class BSHActivity extends Activity {
         return super.onKeyMultiple(keyCode, repeatCount, event);
     }
 
-    /*@Override
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (onKeyUpCall != null) {
+            SetParam("code", keyCode);
+            SetParam("event", event);
+            InvokeMethod(onKeyUpCall);
+        }
         return super.onKeyUp(keyCode, event);
-    }*/
+    }
 
     @Override
     public void onBackPressed() {
@@ -323,14 +337,18 @@ public class BSHActivity extends Activity {
     /*@Override
     public boolean onSearchRequested(SearchEvent searchEvent) {
         return super.onSearchRequested(searchEvent);
-    }
+    }*/
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (onTouchEventCall != null) {
+            SetParam("event", event);
+            InvokeMethod(onTouchEventCall);
+        }
         return super.onTouchEvent(event);
     }
 
-    @Override
+    /*@Override
     public boolean onPreparePanel(int featureId, View view, Menu menu) {
         return super.onPreparePanel(featureId, view, menu);
     }
