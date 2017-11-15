@@ -9,4 +9,4 @@ Window window = me.getWindow();
 window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
 int statusBarHeight = rectangle.top;
 int contentViewTop = window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
-int titleBarHeight= contentViewTop - statusBarHeight;
+int titleBarHeight = contentViewTop - statusBarHeight;

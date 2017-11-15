@@ -6,4 +6,8 @@ libs/doImports.bshL;
 libs/statusBarHeight.bshL;
 libs/tintBar.bshL;
 libs/anim.bshL;
-libs/loadMod.bshL
+libs/loadMod.bshL;
+libs/fetchSplash.bshL;
+libs/fetchFortune.bshL;
+libs/getAssets.bshL;
+libs/treeIcon.bshL

@@ -35,12 +35,14 @@ public class ExecActivity extends Activity {
             getActionBar().setIcon(drawable.ic_secure);
         textBackground = new EditText(this);
         textBackground.setGravity(Gravity.TOP);
+        textBackground.setTextSize(14);
         textBackground.setText("Loading info...");
         setContentView(textBackground);
         try {
             program = Uri.decode(getIntent().getDataString());
             program = program.replaceFirst("bsh:", "");
         } catch (Exception e) {
+            e.printStackTrace();
             program = "me.toast(\"Failed to get program!\")";
             ImportActivity.toast(this, e.getMessage());
         }

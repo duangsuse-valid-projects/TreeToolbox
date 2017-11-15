@@ -1,0 +1,4 @@
+//returns tree icon resid for current theme
+int getTreeIcon() {
+
+}

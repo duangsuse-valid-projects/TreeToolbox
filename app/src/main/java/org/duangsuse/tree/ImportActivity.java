@@ -47,6 +47,7 @@ public class ImportActivity extends Activity {
             try {
                 readFile(new FileInputStream(getIntent().getStringExtra(name_field)));
             } catch (Exception e) {
+                e.printStackTrace();
                 toast(this, name_field + " field not found, check your intent");
             }
             exec(program);
@@ -65,6 +66,7 @@ public class ImportActivity extends Activity {
             if (fileinput == null)
                 fileinput = openFileInput(getIntent().getStringExtra(name_field));
         } catch (Exception e) {
+            e.printStackTrace();
             toast(this, "neither file path nor file url found");
             finish();
             return;
@@ -77,6 +79,7 @@ public class ImportActivity extends Activity {
         try {
             bsh.set("me", this);
         } catch (Exception e) {
+            e.printStackTrace();
             toast(this, e.getMessage());
         }
         setContentView(mEditText);
@@ -115,6 +118,7 @@ public class ImportActivity extends Activity {
             try {
                 bsh.eval(mEditText.getText().toString());
             } catch (Exception e) {
+                e.printStackTrace();
                 toast(this, e.getMessage());
             }
         } else {
@@ -135,6 +139,7 @@ public class ImportActivity extends Activity {
         try {
             program = MainActivity.inputStream2String(is);
         } catch (Exception e) {
+            e.printStackTrace();
             Toast.makeText(ImportActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }

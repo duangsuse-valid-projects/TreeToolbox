@@ -1,0 +1,7 @@
+lwl = 0;
+nfz = 1;
+
+//don't forget to set fortune var !
+String fetchFortune(type) {
+
+}

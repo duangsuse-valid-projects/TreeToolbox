@@ -1,1 +1,4 @@
 //KK tinted status bar
+void setColor(c) {
+
+}

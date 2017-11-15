@@ -5,12 +5,12 @@ import android.app.AlertDialog;
 import java.io.FileInputStream;
 
 //text
-title="Update Tree - Stage 2";
-msg="发现您可能安装了应用的新版本，进行更新吗？(这可能会覆盖对应用代码的修改）";
-yes="好的（默认）";
-no="现在不";
-ignore="不再提醒";
-main="main.bsh";
+title = "Update Tree - Stage 2";
+msg = "发现您可能安装了应用的新版本，进行更新吗？(这可能会覆盖对应用代码的修改）";
+yes = "好的（默认）";
+no = "现在不";
+ignore = "不再提醒";
+main = "main.bsh";
 enter = true;
 
 yeslistener = new DialogInterface.OnClickListener() {
@@ -89,5 +89,3 @@ void start() {
 
 if (enter)
   start();
-
-//leave directly when other activities finishes

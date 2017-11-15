@@ -55,6 +55,7 @@ public class PrepareStubApp {
         try {
             am.open(file_package_list);
         } catch (IOException e) {
+            //e.printStackTrace();
             return;
         }
 
@@ -65,6 +66,7 @@ public class PrepareStubApp {
             String content = MainActivity.inputStream2String(pis);
             pathes = split_path(content);
         } catch (IOException e) {
+            e.printStackTrace();
             return;
         }
         for (String i : pathes) {
@@ -73,6 +75,7 @@ public class PrepareStubApp {
                 new File(parent).mkdirs();
                 wrtFile(am.open(i), file_path + i);
             } catch (IOException e) {
+                e.printStackTrace();
                 ImportActivity.toast(mContext, "Failed to unzip " + i);
             }
         }

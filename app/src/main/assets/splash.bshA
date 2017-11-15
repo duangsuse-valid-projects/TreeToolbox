@@ -1,4 +1,30 @@
 //Splash
+me.Import("libs/anim");
+me.Import("libs/doImports");
+final int l = Long.valueOf(splash_wait);
 
-//begin Main Activity
-me.beginActivity("app");
+//must use timer, not thread
+//me.go("Thread.sleep(l)", "start");
+
+//splash ui
+v = new TextView(me);
+me.setContentView(v);
+
+
+//start activity if timer up
+Handler handler = new Handler();
+Runnable runnable = new Runnable() {
+  public void run() {
+    //begin Main Activity
+    start();
+    //finish this activity
+    me.finish();
+  }
+};
+
+handler.postAtTime(runnable, System.currentTimeMillis() + l);
+handler.postDelayed(runnable, l);
+
+void start() {
+  me.beginActivity("app");
+}

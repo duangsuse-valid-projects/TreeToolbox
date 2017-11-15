@@ -123,6 +123,7 @@ public class MainActivity extends Activity {
             objputs("ngin", beanshell);
             objputs("lay", mainLayout);
         } catch (Exception e) {
+            e.printStackTrace();
             toast(e.getMessage());
         }
 
@@ -155,6 +156,7 @@ public class MainActivity extends Activity {
         try {
             f_plugin = new FileInputStream(getMainScript());
         } catch (Exception e) {
+            e.printStackTrace();
             toast(e.getMessage());
             toast("put main.bsh in my data dir(^_^)/");
         }
@@ -164,6 +166,7 @@ public class MainActivity extends Activity {
             try {
                 program = inputStream2String(f_plugin);
             } catch (Exception e) {
+                e.printStackTrace();
                 toast(e.getMessage());
             }
             eval(program);
@@ -233,6 +236,7 @@ public class MainActivity extends Activity {
             invokeMethod(onEvalFinishCall);
             return o;
         } catch (Exception e) {
+            e.printStackTrace();
             evalError = e;
             if (efail != null) efail.onEvalFail(e);
             invokeMethod(onEvalFailCall);
@@ -253,6 +257,7 @@ public class MainActivity extends Activity {
             } else
                 startActivity(i);
         } catch (Exception e) {
+            e.printStackTrace();
             toast("Failed to Start BSH Activity: " + e.getMessage());
         }
     }
@@ -266,6 +271,7 @@ public class MainActivity extends Activity {
         try {
             beanshell.unset(name);
         } catch (EvalError e) {
+            e.printStackTrace();
             toast("Error in destroy Object:" + e.getMessage());
         }
     }
@@ -282,6 +288,7 @@ public class MainActivity extends Activity {
         try {
             return beanshell.eval(stmt);
         } catch (Exception e) {
+            e.printStackTrace();
             toast("Error in call method" + e.getMessage());
         }
         return null;
@@ -292,6 +299,7 @@ public class MainActivity extends Activity {
         try {
             beanshell.set(id, obj);
         } catch (Throwable e) {
+            e.printStackTrace();
             toast(e.toString());
         }
     }

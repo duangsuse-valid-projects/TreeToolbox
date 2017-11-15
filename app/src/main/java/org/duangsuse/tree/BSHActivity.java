@@ -22,11 +22,7 @@ import bsh.Interpreter;
 
 public class BSHActivity extends Activity {
     public final Interpreter ngin;
-    private String program;
-    private String handler_fn;
-
     public String ActivityFile;
-
     public String onCreateCall;
     public String onPostCreateCall;
     public String onActivityResultCall;
@@ -53,8 +49,9 @@ public class BSHActivity extends Activity {
     public String onTouchEventCall;
     public String onKeyDownCall;
     public String onKeyUpCall;
-
     public Bundle bundle;
+    private String program;
+    private String handler_fn;
 
     public BSHActivity() {
         ngin = new Interpreter();
@@ -70,6 +67,7 @@ public class BSHActivity extends Activity {
             if ((ActivityFile = getIntent().getStringExtra(MainActivity.run_field)) != null)
                 ngin.source(ActivityFile);
         } catch (Exception e) {
+            e.printStackTrace();
             ImportActivity.toast(this, e.getMessage());
         }
         // call bsh method
@@ -86,6 +84,7 @@ public class BSHActivity extends Activity {
         try {
             ngin.eval(name + "()");
         } catch (Exception e) {
+            e.printStackTrace();
             ImportActivity.toast(this, "Cannot Invoke Method: " + e.getMessage());
         }
     }
@@ -94,6 +93,7 @@ public class BSHActivity extends Activity {
         try {
             ngin.set("P" + name, param);
         } catch (Exception e) {
+            e.printStackTrace();
             ImportActivity.toast(this, "Failed to set param: " + e.getMessage());
         }
     }
@@ -104,6 +104,7 @@ public class BSHActivity extends Activity {
                     getExternalFilesDir(Environment.MEDIA_MOUNTED).toString() + "/" + name + ".bshL"
             );
         } catch (Exception e) {
+            e.printStackTrace();
             ImportActivity.toast(this, "Failed to import library: " + e.getMessage());
         }
     }
@@ -121,6 +122,7 @@ public class BSHActivity extends Activity {
             } else
                 startActivity(i);
         } catch (Exception e) {
+            e.printStackTrace();
             ImportActivity.toast(this, "Failed to Start BSH Activity: " + e.getMessage());
         }
     }
@@ -131,20 +133,6 @@ public class BSHActivity extends Activity {
 
     public void say(String s) {
         ImportActivity.toast(this, s);
-    }
-
-    //android bsh Runnable impl
-    public abstract class BSHRunnable implements Runnable {
-        @Override
-        public void run() {
-            try {
-                Object program_result = ngin.eval(program);
-                ngin.set("Pthr", program_result);
-                ngin.eval(handler_fn + "()");
-            } catch (EvalError evalError) {
-                evalError.printStackTrace();
-            }
-        }
     }
 
     public void go(String program, String handler_fn) {
@@ -256,6 +244,12 @@ public class BSHActivity extends Activity {
         }
     }
 
+    @Override
+    protected void onUserLeaveHint() {
+        super.onUserLeaveHint();
+        InvokeMethod(onUserLeaveHintCall);
+    }
+
     /*@Override
     protected void onTitleChanged(CharSequence title, int color) {
         super.onTitleChanged(title, color);
@@ -267,17 +261,6 @@ public class BSHActivity extends Activity {
     }*/
 
     @Override
-    protected void onUserLeaveHint() {
-        super.onUserLeaveHint();
-        InvokeMethod(onUserLeaveHintCall);
-    }
-
-    /*@Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        return super.onPrepareOptionsMenu(menu);
-    }*/
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (onCreateOptionsMenuCall != null) {
             SetParam("menu", menu);
@@ -286,6 +269,11 @@ public class BSHActivity extends Activity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /*@Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        return super.onPrepareOptionsMenu(menu);
+    }*/
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (onOptionsItemSelectedCall != null) {
@@ -293,6 +281,15 @@ public class BSHActivity extends Activity {
             InvokeMethod(onOptionsItemSelectedCall);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onOptionsMenuClosed(Menu menu) {
+        super.onOptionsMenuClosed(menu);
+        if (onOptionsMenuClosedCall != null) {
+            SetParam("menu", menu);
+            InvokeMethod(onOptionsMenuClosedCall);
+        }
     }
 
     /*@Override
@@ -306,20 +303,6 @@ public class BSHActivity extends Activity {
     }*/
 
     @Override
-    public void onOptionsMenuClosed(Menu menu) {
-        super.onOptionsMenuClosed(menu);
-        if (onOptionsMenuClosedCall != null) {
-            SetParam("menu", menu);
-            InvokeMethod(onOptionsMenuClosedCall);
-        }
-    }
-
-    /*@Override
-    public boolean onCreateThumbnail(Bitmap outBitmap, Canvas canvas) {
-        return super.onCreateThumbnail(outBitmap, canvas);
-    }*/
-
-    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (onKeyDownCall != null) {
             SetParam("code", keyCode);
@@ -328,6 +311,11 @@ public class BSHActivity extends Activity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    /*@Override
+    public boolean onCreateThumbnail(Bitmap outBitmap, Canvas canvas) {
+        return super.onCreateThumbnail(outBitmap, canvas);
+    }*/
 
     @Override
     public boolean onKeyLongPress(int keyCode, KeyEvent event) {
@@ -366,11 +354,6 @@ public class BSHActivity extends Activity {
         InvokeMethod(onBackPressedCall);
     }
 
-    /*@Override
-    public boolean onSearchRequested(SearchEvent searchEvent) {
-        return super.onSearchRequested(searchEvent);
-    }*/
-
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (onTouchEventCall != null) {
@@ -378,6 +361,17 @@ public class BSHActivity extends Activity {
             InvokeMethod(onTouchEventCall);
         }
         return super.onTouchEvent(event);
+    }
+
+    /*@Override
+    public boolean onSearchRequested(SearchEvent searchEvent) {
+        return super.onSearchRequested(searchEvent);
+    }*/
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        InvokeMethod(onLowMemoryCall);
     }
 
     /*@Override
@@ -421,9 +415,12 @@ public class BSHActivity extends Activity {
     }*/
 
     @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        InvokeMethod(onLowMemoryCall);
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (onWindowFocusChangedCall != null) {
+            SetParam("hasF", hasFocus);
+            InvokeMethod(onWindowFocusChangedCall);
+        }
     }
 
     /*@Override
@@ -442,12 +439,17 @@ public class BSHActivity extends Activity {
         super.onPostCreate(savedInstanceState, persistentState);
     }*/
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (onWindowFocusChangedCall != null) {
-            SetParam("hasF", hasFocus);
-            InvokeMethod(onWindowFocusChangedCall);
+    //android bsh Runnable impl
+    public abstract class BSHRunnable implements Runnable {
+        @Override
+        public void run() {
+            try {
+                Object program_result = ngin.eval(program);
+                ngin.set("Pthr", program_result);
+                ngin.eval(handler_fn + "()");
+            } catch (EvalError evalError) {
+                evalError.printStackTrace();
+            }
         }
     }
 }
