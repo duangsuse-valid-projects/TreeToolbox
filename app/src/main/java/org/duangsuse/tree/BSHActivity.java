@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 
+import bsh.EvalError;
 import bsh.Interpreter;
 
 /**
@@ -20,7 +21,10 @@ import bsh.Interpreter;
  */
 
 public class BSHActivity extends Activity {
-    public Interpreter ngin;
+    public final Interpreter ngin;
+    private String program;
+    private String handler_fn;
+
     public String ActivityFile;
 
     public String onCreateCall;
@@ -52,12 +56,15 @@ public class BSHActivity extends Activity {
 
     public Bundle bundle;
 
+    public BSHActivity() {
+        ngin = new Interpreter();
+    }
+
     // Gets file path from intent and source it
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            ngin = new Interpreter();
             ngin.set("me", this);
             // eval script
             if ((ActivityFile = getIntent().getStringExtra(MainActivity.run_field)) != null)
@@ -124,6 +131,31 @@ public class BSHActivity extends Activity {
 
     public void say(String s) {
         ImportActivity.toast(this, s);
+    }
+
+    //android bsh Runnable impl
+    public abstract class BSHRunnable implements Runnable {
+        @Override
+        public void run() {
+            try {
+                Object program_result = ngin.eval(program);
+                ngin.set("Pthr", program_result);
+                ngin.eval(handler_fn + "()");
+            } catch (EvalError evalError) {
+                evalError.printStackTrace();
+            }
+        }
+    }
+
+    public void go(String program, String handler_fn) {
+        this.program = program;
+        this.handler_fn = handler_fn;
+        new Thread(new BSHRunnable() {
+            @Override
+            public void run() {
+                super.run();
+            }
+        }).start();
     }
 
     @Override
