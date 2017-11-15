@@ -4,4 +4,6 @@ app.bshA;
 splash.bshA;
 libs/doImports.bshL;
 libs/statusBarHeight.bshL;
-libs/tintBar.bshL
+libs/tintBar.bshL;
+libs/anim.bshL;
+libs/loadMod.bshL

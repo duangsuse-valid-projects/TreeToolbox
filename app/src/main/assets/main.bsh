@@ -1,10 +1,93 @@
-import android.os.*;
-import android.widget.*;
-import android.view.*;
-import android.content.Intent;
-import android.net.Uri;
+//00
+import android.content.DialogInterface;
+import android.os.Environment;
+import android.app.AlertDialog;
+import java.io.FileInputStream;
 
-//check Update
+//text
+title="Update Tree - Stage 2";
+msg="发现您可能安装了应用的新版本，进行更新吗？(这可能会覆盖对应用代码的修改）";
+yes="好的（默认）";
+no="现在不";
+ignore="不再提醒";
+main="main.bsh";
+enter = true;
 
-//beginActivity
-me.beginActivity("splash");
+yeslistener = new DialogInterface.OnClickListener() {
+  void onClick(d, i) {
+    me.toast("进行更新… 请手动重启应用");
+    new File(dataPath() + main).delete();
+    d.dismiss();
+    me.finish();
+  }
+};
+ignorelistener = new DialogInterface.OnClickListener() {
+  void onClick(d, i) {
+    me.toast("移除 " + dataPath() + " no_check文件来允许检查");
+    new File(dataPath() + "no_check").createNewFile();
+    start();
+    d.dismiss();
+  }
+};
+nolistener = new DialogInterface.OnClickListener() {
+  void onClick(d, i) {
+    start();
+    d.dismiss();
+  }
+};
+
+
+String dataPath() {
+  return me.getExternalFilesDir(Environment.MEDIA_MOUNTED).getPath() + "/";
+}
+
+//load animation
+ngin.source(dataPath() + "libs/anim.bshL");
+
+if (! new File(dataPath() + "no_check").exists()) {
+  //check Update
+  InputStream origin = null;
+  InputStream data = null;
+  try {
+    origin = me.getAssets().open(main);
+    data = new FileInputStream(dataPath() + main);
+  } catch (Exception e) {
+    me.toast("error checking update: " + e.getMessage());
+  }
+
+  void showUpdate() {
+    new AlertDialog.Builder(me)
+      .setCancelable(false)
+      .setTitle(title)
+      .setMessage(msg)
+      .setPositiveButton(yes, yeslistener)
+      .setNeutralButton(ignore, ignorelistener)
+      .setNegativeButton(no, nolistener)
+      .show();
+  }
+
+  i = 0;
+  while (i < 4) {
+    if (!(origin.read() == data.read())) {
+      enter = false;
+      showUpdate();
+      break;
+    }
+    i++;
+  }
+}
+
+//beginActivity in main.bsh there is no more animation needed
+
+void start() {
+  if (new File(dataPath() + "no_splash").exists())
+    me.beginActivity("app", app_in, app_out);
+  else
+    me.beginActivity("splash", splash_in, splash_out);
+  me.finish();
+}
+
+if (enter)
+  start();
+
+//leave directly when other activities finishes
