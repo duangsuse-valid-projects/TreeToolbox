@@ -4,7 +4,7 @@ me.Import("libs/tintBar");
 me.Import("libs/treeIcon");
 
 me.setTheme(mTheme);
-me.getActionBar().setTitle(appname);
+me.getActionBar().setTitle(app_name);
 //hide the action bar. comment out if you want
 me.getActionBar().hide();
 

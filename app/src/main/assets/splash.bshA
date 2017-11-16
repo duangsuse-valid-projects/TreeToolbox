@@ -56,16 +56,16 @@ if (tree_code == "")
 else
   me.ngin.eval(tree_code);
 
-upper_tv = new TextView(me);
+upper_tv = new EvaporateTextView(me);
 upper_tv.setTextColor(splash_appname_color);
 upper_tv.setTextSize(splash_panel_title_size);
-upper_tv.setText(app_name);
+upper_tv.animateText(app_name);
 
-bottom_tv = new TextView(me);
+bottom_tv = new EvaporateTextView(me);
 bottom_tv.setTextColor(splash_fortune_color);
 bottom_tv.setPadding(0, padding, 0, 0);
 bottom_tv.setTextSize(splash_panel_subtitle_size);
-bottom_tv.setText(fortune_loading);
+bottom_tv.animateText(fortune_loading);
 
 drawen = false;
 written = false;
@@ -77,7 +77,7 @@ void try_draw() {
       v.setBackgroundDrawable(background);
       drawen = true;
     if (fortune != null&&!written)
-      bottom_tv.setText(fortune);
+      bottom_tv.animateText(fortune);
       written = true;
     }
 }
