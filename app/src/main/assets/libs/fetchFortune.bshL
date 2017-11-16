@@ -5,16 +5,30 @@ nfzurl = "https://api.nfz.moe/paranoia/";
 
 import java.net.URL;
 
+me.Import("libs/getAssets");
+
 //don't forget to set fortune var !
 String fetchFortune(int type) {
   if (type == lwl) {
     fortune = lwlFortune();
-    return fortune;
   }
   else {
     fortune = nfzFortune();
-    return fortune;
   }
+  saveFortune(fortune);
+  return fortune;
+}
+
+void saveFortune(String txt) {
+  try {
+    FileWriter fw = new FileWriter(assetPath("fortune"), true);
+    BufferedWriter bw = new BufferedWriter(fw);
+    PrintWriter out = new PrintWriter(bw);
+    out.println(txt);
+    //complain: WTF StackOverFlow gives... I think and think.... emmmm, I haven't call flush().......
+    out.flush();
+    out.close();
+  } catch (Exception e) { e.printStackTrace(); }
 }
 
 String performGET(String url) {

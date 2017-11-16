@@ -38,12 +38,16 @@ public class u {
         FileWriter fw = new FileWriter(loc);
         BufferedWriter writer = new BufferedWriter(fw);
         writer.write(txt);
+        writer.flush();
+        writer.close();
     }
 
     // append text to special file (newline)
     public static void append(String loc, String txt, String charset) throws IOException {
         PrintWriter pwrt = new PrintWriter(loc, charset);
         pwrt.println(txt);
+        pwrt.flush();
+        pwrt.close();
     }
 
     public static void append(String l, String t) throws IOException {

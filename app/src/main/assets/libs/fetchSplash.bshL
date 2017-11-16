@@ -3,18 +3,31 @@ import android.os.*;
 import android.graphics.*;
 import android.graphics.drawable.*;
 
-String SplashPicDir = me.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
+SplashPicDir = me.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 //sets background var when finished
 void fetchSplash() {
-  loadSplash("welcome.png");
+  String[] files = SplashPicDir.list();
+  if (files.length == 0) {
+    init();
+    return;
+  }
+  selected_splash = files[randInt(0, files.length - 1)];
+  loadSplash(selected_splash);
 }
 
 void loadSplash(nvme) {
-  InputStream input = new FileInputStream(SplashPicDir + "/" + nvme);
+  InputStream input = new FileInputStream(SplashPicDir.getPath() + "/" + nvme);
   bit = BitmapFactory.decodeStream(input);
   background = new BitmapDrawable(bit);
+  app_name = nvme;
 }
 
 void init() {
+  me.Import("libs/SplashWelcome");
+}
 
+int randInt(int min, int max) {
+  Random rand = new Random();
+  int randomNum = rand.nextInt((max - min) + 1) + min;
+  return randomNum;
 }

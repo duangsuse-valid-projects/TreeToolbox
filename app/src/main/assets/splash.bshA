@@ -72,6 +72,7 @@ written = false;
 String fortune = null;
 BitmapDrawable background = null;
 void try_draw() {
+  upper_tv.animateText(app_name);
   if (!drawen||!written) {
     if (background != null&&!drawen)
       v.setBackgroundDrawable(background);
