@@ -1,30 +1,202 @@
 //Splash
-me.Import("libs/anim");
+import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.graphics.*;
+import android.graphics.drawable.*;
+
 me.Import("libs/doImports");
+me.Import("libs/animL");
+loadCfg();
+me.Import("libs/treeIcon");
 final int l = Long.valueOf(splash_wait);
 
 //must use timer, not thread
 //me.go("Thread.sleep(l)", "start");
 
+me.getActionBar().hide();
+
+if (splash_fullscreen)
+  me.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+              WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 //splash ui
-v = new TextView(me);
+v = new LinearLayout(me);
+v.setBackgroundDrawable(background_loading);
+/*
+    Bitmap x = null;
+
+    input = new FileInputStream("/sdcard/welcome.png");
+
+    x = BitmapFactory.decodeStream(input);
+    dr = new BitmapDrawable(x);
+    input = new FileInputStream("/storage/sdcard1/Download/material-tree.png");
+    y = BitmapFactory.decodeStream(input);
+*/
+
+panel = new LinearLayout(me);
+panel.setGravity(Gravity.BOTTOM);
+
+//set panel color here
+panel.setBackgroundDrawable(new ColorDrawable(
+  Color.argb(splashPanelAlpha, 0, 0, 0)));
+
+panel.setLayoutParams(new LinearLayout.LayoutParams(
+  ViewGroup.LayoutParams.MATCH_PARENT,
+  ViewGroup.LayoutParams.WRAP_CONTENT
+));
+
+LinearLayout.LayoutParams params = panel.getLayoutParams();
+params.gravity = Gravity.BOTTOM;
+
+b = new ImageView(me);
+
+material_tree = getTreeIcon();
+if (tree_code == "")
+  b.setImageDrawable(/*me.getResources().getDrawable(R.drawable.ic_d)*/material_tree);
+else
+  me.ngin.eval(tree_code);
+
+upper_tv = new TextView(me);
+upper_tv.setTextColor(splash_appname_color);
+upper_tv.setTextSize(splash_panel_title_size);
+upper_tv.setText(app_name);
+
+bottom_tv = new TextView(me);
+bottom_tv.setTextColor(splash_fortune_color);
+bottom_tv.setPadding(0, padding, 0, 0);
+bottom_tv.setTextSize(splash_panel_subtitle_size);
+bottom_tv.setText(fortune_loading);
+
+drawen = false;
+written = false;
+String fortune = null;
+BitmapDrawable background = null;
+void try_draw() {
+  if (!drawen||!written) {
+    if (background != null&&!drawen)
+      v.setBackgroundDrawable(background);
+      drawen = true;
+    if (fortune != null&&!written)
+      bottom_tv.setText(fortune);
+      written = true;
+    }
+}
+
+text_lay = new LinearLayout(me);
+text_lay.setOrientation(LinearLayout.VERTICAL);
+
+text_lay.setLayoutParams(new LinearLayout.LayoutParams(
+  ViewGroup.LayoutParams.WRAP_CONTENT,
+  ViewGroup.LayoutParams.WRAP_CONTENT
+));
+
+LinearLayout.LayoutParams tps = text_lay.getLayoutParams();
+tps.gravity = Gravity.TOP;
+text_lay.addView(upper_tv);
+text_lay.addView(bottom_tv);
+
+panel.addView(b);
+panel.addView(text_lay);
+
+v.addView(panel);
 me.setContentView(v);
 
+size = splashIconSize;
+if (iconCode != "")
+  me.ngin.eval(iconCode);
+android.view.ViewGroup.LayoutParams layoutParams = b.getLayoutParams();
+layoutParams.width = size;
+layoutParams.height = size;
+layoutParams.gravity = Gravity.TOP;
+b.setLayoutParams(layoutParams);
+
+void em() { }
+
+if (fn_get_bg == "") {
+  me.Import("libs/fetchSplash");
+  me.go("fetchSplash()", "em");
+} else {
+  me.ngin.eval(fn_get_ng);
+}
+
+if (fn_get_subtitle == "") {
+  me.Import("libs/fetchFortune");
+  me.go("fetchFortune(" + String.valueOf(fortune_type) + ")", "em");
+} else {
+  me.ngin.eval(fn_get_subtitle);
+}
 
 //start activity if timer up
 Handler handler = new Handler();
 Runnable runnable = new Runnable() {
   public void run() {
     //begin Main Activity
-    start();
+    try {
+      start();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     //finish this activity
     me.finish();
   }
 };
+Runnable tryDraw = new Runnable() {
+  public void run() {
+    try_draw();
+  }
+};
+
 
 handler.postAtTime(runnable, System.currentTimeMillis() + l);
 handler.postDelayed(runnable, l);
 
+//check async fortune&bg status
+check = new Integer[8];
+check[0] = 300;
+check[1] = 500;
+check[2] = 1000;
+check[3] = 1500;
+check[4] = 2000;
+check[5] = 2300;
+check[6] = 2500;
+check[7] = 2700;
+for (t:check) {
+  handler.postAtTime(tryDraw, System.currentTimeMillis() + t);
+  handler.postDelayed(tryDraw, t);
+}
+
+me.onBackPressedCall = "cancelLaunch";
+
+void cancelLaunch() {
+  if(handler != null) {
+    handler.removeCallbacks(runnable);
+    runnable = null;
+  }
+}
+
 void start() {
-  me.beginActivity("app");
+  if (splash_trans_override == "") {
+    top.wefor.circularanim.CircularAnim.fullActivity(me, b)
+    .colorOrImageRes(circular_color)
+    .go(new top.wefor.circularanim.CircularAnim.OnAnimationEndListener() {
+      public void onAnimationEnd() {
+        me.go("Thread.sleep(0)", "launch");
+    } });
+  } else {
+    me.ngin.eval(splash_trans_override);
+  }
+}
+
+b.setOnClickListener(
+  new OnClickListener() {
+    public void onClick(View v) {
+      cancelLaunch();
+      start();
+      me.finish();
+    }
+  }
+);
+
+void launch() {
+  me.beginActivity("app", app_in, app_out);
 }

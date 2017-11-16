@@ -3,6 +3,7 @@ package org.duangsuse;
 import org.duangsuse.tree.MainActivity;
 
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -33,14 +34,10 @@ public class u {
     }
 
     // write to special file
-    public static void wrt(String loc, String txt, String charset) throws IOException {
-        Writer writer =
-                new BufferedWriter(new OutputStreamWriter(new FileOutputStream(loc), charset));
+    public static void wrt(String loc, String txt) throws IOException {
+        FileWriter fw = new FileWriter(loc);
+        BufferedWriter writer = new BufferedWriter(fw);
         writer.write(txt);
-    }
-
-    public static void wrt(String l, String t) throws IOException {
-        wrt(l, t, "utf-8");
     }
 
     // append text to special file (newline)

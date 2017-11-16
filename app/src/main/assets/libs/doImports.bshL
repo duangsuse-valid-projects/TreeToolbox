@@ -3,7 +3,8 @@ import android.widget.*;
 import android.view.*;
 import android.content.*;
 import android.net.*;
-import android.graphics;
+import android.graphics.*;
+import android.graphics.drawable.*;
 import android.util.*;
 //anim
 import com.easyandroidanimations.library.*;
@@ -23,3 +24,8 @@ import android.support.v4.view.*;
 import android.support.v4.util.*;
 //v7
 import android.support.v7.widget.RecyclerView;
+
+FAB = FloatingActionButton;
+US = org.duangsuse.u;
+CA = CircularAnim;
+ET = EvaporateText;

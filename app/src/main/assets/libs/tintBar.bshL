@@ -1,4 +1,6 @@
 //KK tinted status bar
+
+me.Import("libs/statusBarHeight");
 void setColor(c) {
 
 }

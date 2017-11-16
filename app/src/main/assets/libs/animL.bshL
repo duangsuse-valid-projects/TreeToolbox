@@ -1,0 +1,20 @@
+//Default value loader.
+
+void loadCfg() {
+  cfg_lib = me.getExternalFilesDir(Environment.MEDIA_MOUNTED).getPath();
+  anim_file_path = cfg_lib + "/libs/anim.bshL";
+  if (!new File(anim_file_path).exists()) {
+    //String animcfg = org.duangsuse.tree.MainActivity.inputStream2String(me.getAssets().open("assets/anim.bshL.example"));
+    //org.duangsuse.u.wrt(anim_file_path, animcfg);
+    FileInputStream cfg_fis = new FileInputStream(cfg_lib + "/assets/anim.bshL.example");
+    cfg_fos = new FileOutputStream(anim_file_path);
+    while ((iftmp = cfg_fis.read()) != -1) {
+      cfg_fos.write(iftmp);
+    }
+  }
+  /*if (ngin == null)
+    me.ngin.source(anim_file_path);
+  else
+    ngin.source(anim_file_path);*/
+  this.interpreter.source(anim_file_path);
+}

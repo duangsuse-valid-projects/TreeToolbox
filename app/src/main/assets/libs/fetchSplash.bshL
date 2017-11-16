@@ -1,3 +1,20 @@
 //sync latest splash from duangsuse gist
+import android.os.*;
+import android.graphics.*;
+import android.graphics.drawable.*;
 
+String SplashPicDir = me.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath();
 //sets background var when finished
+void fetchSplash() {
+  loadSplash("welcome.png");
+}
+
+void loadSplash(nvme) {
+  InputStream input = new FileInputStream(SplashPicDir + "/" + nvme);
+  bit = BitmapFactory.decodeStream(input);
+  background = new BitmapDrawable(bit);
+}
+
+void init() {
+
+}

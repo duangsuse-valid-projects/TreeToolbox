@@ -1,3 +1,11 @@
 //Module selector
 
+me.Import("libs/tintBar");
+me.Import("libs/treeIcon");
+
+me.setTheme(mTheme);
+me.getActionBar().setTitle(appname);
+//hide the action bar. comment out if you want
+me.getActionBar().hide();
+
 me.say("Hello");

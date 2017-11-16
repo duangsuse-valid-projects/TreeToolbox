@@ -1,4 +1,4 @@
-//00
+//03
 import android.content.DialogInterface;
 import android.os.Environment;
 import android.app.AlertDialog;
@@ -42,7 +42,8 @@ String dataPath() {
 }
 
 //load animation
-ngin.source(dataPath() + "libs/anim.bshL");
+ngin.source(dataPath() + "libs/animL.bshL");
+loadCfg();
 
 if (! new File(dataPath() + "no_check").exists()) {
   //check Update

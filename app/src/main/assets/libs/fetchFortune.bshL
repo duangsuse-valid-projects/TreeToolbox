@@ -1,7 +1,33 @@
 lwl = 0;
+lwlurl = "https://api.lwl12.com/hitokoto/main/get";
 nfz = 1;
+nfzurl = "https://api.nfz.moe/paranoia/";
+
+import java.net.URL;
 
 //don't forget to set fortune var !
-String fetchFortune(type) {
+String fetchFortune(int type) {
+  if (type == lwl) {
+    fortune = lwlFortune();
+    return fortune;
+  }
+  else {
+    fortune = nfzFortune();
+    return fortune;
+  }
+}
 
+String performGET(String url) {
+  URL ul = new URL(url);
+  URLConnection conn = ul.openConnection();
+  InputStream is = conn.getInputStream();
+  return org.duangsuse.tree.MainActivity.inputStream2String(is);
+}
+
+String lwlFortune() {
+  return performGET(lwlurl);
+}
+
+String nfzFortune() {
+  return performGET(nfzurl);
 }

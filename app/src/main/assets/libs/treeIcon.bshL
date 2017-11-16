@@ -1,4 +1,58 @@
 //returns tree icon resid for current theme
-int getTreeIcon() {
+sR = org.duangsuse.tree.R.style;
 
+me.Import("libs/anim");
+
+Drawable getTreeIcon() {
+  if (Build.VERSION.SDK_INT < 21)
+    return me.getResources().getDrawable(org.duangsuse.tree.R.drawable.ic_b);
+  else {
+    res = me.getResources();
+    ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_material_tree);
+    switch (mTheme) {
+      case sR.ThemeLight:
+        ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_material_tree);
+      break;
+      case sR.ThemeDark:
+        ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_d);
+      break;
+      case sR.ThemeRed:
+        ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_r);
+      break;
+      case sR.ThemeGreen:
+        ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_g);
+      break;
+      case sR.ThemeBlue:
+        ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_b);
+      break;
+      case sR.ThemeYellow:
+        ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_y);
+      break;
+      default:
+        ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_d);
+      break;
+    }
+    //which material tree to use?
+    //0 brown 1 red 2 green 3 blue 4 yellow 5 dark
+    if (tree != 0) {
+      switch (tree) {
+        case 1:
+          ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_r);
+        break;
+        case 2:
+          ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_g);
+        break;
+        case 3:
+          ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_b);
+        break;
+        case 4:
+          ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_y);
+        break;
+        case 5:
+          ret = res.getDrawable(org.duangsuse.tree.R.drawable.ic_d);
+        break;
+      }
+    }
+    return ret;
+  }
 }
