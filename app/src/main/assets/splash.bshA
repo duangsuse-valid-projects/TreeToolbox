@@ -162,7 +162,7 @@ for (t:check) {
 me.onBackPressedCall = "cancelLaunch";
 
 void cancelLaunch() {
-  if(handler != null) {
+  if (handler != null) {
     handler.removeCallbacks(runnable);
     runnable = null;
   }

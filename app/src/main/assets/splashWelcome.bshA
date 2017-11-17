@@ -23,6 +23,7 @@ int randColor() {
 
 pic = "https://0d077ef9e74d8.cdn.sohucs.com/qBd502B_jpg";
 size = "123K";
+boolean dl_finished = false;
 
 me.getActionBar().hide();
 me.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -117,9 +118,10 @@ void openedStream() {
 }
 
 void downloadedPic() {
-  handler.removeCallbacks(picd);
+  //handler.removeCallbacks(picd);
+  dl_finished = true;
   background.animateText("完成！");
-  me.go("Thread.sleep(2000);", "me.finish");
+  me.go("Thread.sleep(2500);", "me.finish");
 }
 
 void loadPic() {
@@ -134,7 +136,51 @@ void loadPic() {
 
 Runnable updateProgress = new Runnable() {
   public void run() {
-    background.animateText((count/1024).toString() + "/" + size);
+    int kib = count/1024;
+    if (!dl_finished) {
+      switch (kib) {
+        case 0:
+          text = "QWQ Starting";
+        break;
+        case 10:
+          //Too Simple
+          text = "Naive!";
+        break;
+        case 20:
+          text = "Excited!";
+        break;
+        case 30:
+          text = "Emmmm";
+        break;
+        case 40:
+          text = "YOUNG";
+        break;
+        case 50:
+          text = "HTextView";
+        break;
+        case 60:
+          text = "AOSP";
+        break;
+        case 70:
+          text = "CircularAnim";
+        break;
+        case 80:
+          text = "melnykov FAB";
+        break;
+        case 90:
+          text = "easterEgg";
+        break;
+        case 100:
+          text = "BeanShell";
+        break;
+        case 110:
+          text = "GitHub";
+        break;
+        default:
+          text = kib.toString() + "/" + size;
+      }
+      background.animateText(text);
+    }
   }
 };
 
