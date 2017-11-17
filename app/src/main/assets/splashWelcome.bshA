@@ -1,0 +1,174 @@
+me.Import("libs/doImports");
+import android.graphics.*;
+import android.graphics.drawable.*;
+
+import org.duangsuse.tree.R;
+
+//why not make this as a module XD
+int randColor() {
+  res = me.getResources();
+  color = new int[5];
+  color[0] = R.color.red;
+  color[1] = R.color.green;
+  color[2] = R.color.blue;
+  color[3] = R.color.brown;
+  color[4] = R.color.grey;
+  Random rand = new Random();
+  idx = rand.nextInt(5);
+  //me.say(idx.toString());
+  ret =  res.getColor(color[idx]);
+  //me.say(ret.getClass().getName());
+  return ret;
+}
+
+pic = "https://0d077ef9e74d8.cdn.sohucs.com/qBd502B_jpg";
+size = "123K";
+
+me.getActionBar().hide();
+me.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+EvaporateTextView background = new EvaporateTextView(me);
+background.setBackgroundDrawable(new ColorDrawable(randColor()));
+background.setGravity(Gravity.CENTER);
+background.setTextColor(me.getResources().getColor(R.color.white));
+background.setTextSize(60);
+
+background.animateText("你好，世界!");
+
+//其实动画代码可以自动生成的（ 比较懒
+//所以干脆连循环都没用QWQ 反正别人不会看的
+text2 = "XD";
+delay2 = 1000;
+
+text3 = "欢迎来种树呢";
+delay3 = 2000;
+
+text4 = "一个小工具箱";
+delay4 = 3900;
+
+text5 = "微小的工作";
+delay5 = 5000;
+
+text6 = "开源的呢";
+delay6 = 6700;
+
+text7 = "轻巧，良心";
+delay7 = 8000;
+
+text8 = "这就是TreeBox";
+delay8 = 10000;
+
+text9 = "下载第一张图呢";
+delay9 = 12000;
+
+Runnable txt2 = new Runnable() {
+  public void run() {
+    background.animateText(text2);
+  }
+};
+
+Runnable txt3 = new Runnable() {
+  public void run() {
+    background.animateText(text3);
+  }
+};
+
+Runnable txt4 = new Runnable() {
+  public void run() {
+    background.animateText(text4);
+  }
+};
+
+Runnable txt5 = new Runnable() {
+  public void run() {
+    background.animateText(text5);
+  }
+};
+
+Runnable txt6 = new Runnable() {
+  public void run() {
+    background.animateText(text6);
+  }
+};
+
+Runnable txt7 = new Runnable() {
+  public void run() {
+    background.animateText(text7);
+  }
+};
+
+Runnable txt8 = new Runnable() {
+  public void run() {
+    background.animateText(text8);
+  }
+};
+
+count = 0;
+void openedStream() {
+  stream = Pthr;
+  out = new FileOutputStream(me.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath() + "/Tree ToolBox");
+  b = new byte[1024];
+  while ((b = stream.read()) != -1) {
+    out.write(b);
+    count++;
+  }
+  out.close();
+  downloadedPic();
+}
+
+void downloadedPic() {
+  handler.removeCallbacks(picd);
+  background.animateText("完成！");
+  me.go("Thread.sleep(2000);", "me.finish");
+}
+
+void loadPic() {
+  try {
+    me.go("new URL(pic).openStream();", "openedStream");
+  } catch (Exception e) {
+    //吐槽：这个有f**k 用，me.go 好像自己catch了所有异常（
+    me.say("失败了呢，按返回键先使用工具箱吧");
+    e.printStackTrace();
+  }
+}
+
+Runnable updateProgress = new Runnable() {
+  public void run() {
+    background.animateText((count/1024).toString() + "/" + size);
+  }
+};
+
+Runnable txt9 = new Runnable() {
+  public void run() {
+    background.animateText(text9);
+  }
+};
+
+Runnable picd = new Runnable() {
+  public void run() {
+    loadPic();
+  }
+};
+
+me.setContentView(background);
+
+//Initialize handler
+Handler handler = new Handler();
+//handler.postAtTime(txt2, System.currentTimeMillis() + delay2);
+handler.postDelayed(txt2, delay2);
+//handler.postAtTime(txt3, System.currentTimeMillis() + delay3);
+handler.postDelayed(txt3, delay3);
+//handler.postAtTime(txt4, System.currentTimeMillis() + delay4);
+handler.postDelayed(txt4, delay4);
+handler.postDelayed(txt5, delay5);
+handler.postDelayed(txt6, delay6);
+handler.postDelayed(txt7, delay7);
+handler.postDelayed(txt8, delay8);
+handler.postDelayed(txt9, delay9);
+handler.postDelayed(picd, delay9 + 1500);
+
+i = 2;
+while (i < 123) {
+  handler.postDelayed(updateProgress, delay9 + i * 1000);
+  i++;
+}

@@ -5,14 +5,15 @@ import android.graphics.drawable.*;
 
 SplashPicDir = me.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
 //sets background var when finished
-void fetchSplash() {
+boolean fetchSplash() {
   String[] files = SplashPicDir.list();
   if (files.length == 0) {
     init();
-    return;
+    return true;
   }
   selected_splash = files[randInt(0, files.length - 1)];
   loadSplash(selected_splash);
+  return false;
 }
 
 void loadSplash(nvme) {
@@ -23,6 +24,7 @@ void loadSplash(nvme) {
 }
 
 void init() {
+  app_name = "Press material tree...";
   me.Import("libs/SplashWelcome");
 }
 

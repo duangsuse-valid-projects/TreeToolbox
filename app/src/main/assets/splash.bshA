@@ -111,18 +111,11 @@ layoutParams.height = size;
 layoutParams.gravity = Gravity.TOP;
 b.setLayoutParams(layoutParams);
 
-void em() { }
-
-if (fn_get_bg == "") {
-  me.Import("libs/fetchSplash");
-  me.go("fetchSplash()", "em");
-} else {
-  me.ngin.eval(fn_get_ng);
-}
+void ignore() { }
 
 if (fn_get_subtitle == "") {
   me.Import("libs/fetchFortune");
-  me.go("fetchFortune(" + String.valueOf(fortune_type) + ")", "em");
+  me.go("fetchFortune(" + String.valueOf(fortune_type) + ")", "ignore");
 } else {
   me.ngin.eval(fn_get_subtitle);
 }
@@ -173,6 +166,17 @@ void cancelLaunch() {
     handler.removeCallbacks(runnable);
     runnable = null;
   }
+}
+
+void em() {
+  if (Pthr == true)
+    cancelLaunch();
+}
+if (fn_get_bg == "") {
+  me.Import("libs/fetchSplash");
+  me.go("fetchSplash()", "em");
+} else {
+  me.ngin.eval(fn_get_ng);
 }
 
 void start() {

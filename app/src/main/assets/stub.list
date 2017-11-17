@@ -11,4 +11,6 @@ libs/loadMod.bshL;
 libs/fetchSplash.bshL;
 libs/fetchFortune.bshL;
 libs/getAssets.bshL;
-libs/treeIcon.bshL
+libs/treeIcon.bshL;
+libs/SplashWelcome.bshL;
+splashWelcome.bshA

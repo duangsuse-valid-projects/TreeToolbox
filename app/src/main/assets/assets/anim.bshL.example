@@ -17,20 +17,30 @@ splash_trans_override = "";
 splash_panel_title_size = 30;
 splash_panel_subtitle_size = 14;
 splashPanelAlpha = 90;
+//code executed before setting icon (size => icon size)
 iconCode = "";
+//Text paddding
 padding = 12;
+//default icon size
 splashIconSize = 3 * (splash_panel_title_size + splash_panel_subtitle_size) + padding;
+//splash is fullscreen?
 splash_fullscreen = true;
+//default background
 background_loading = new ColorDrawable(me.getResources().getColor(org.duangsuse.tree.R.color.brown));
+//see splash activity
 fortune_loading = " Loading…";
+//text colors
 splash_appname_color = Color.WHITE;
 splash_fortune_color = Color.WHITE;
 //which API to use? 0 == lwl hitkoto
 fortune_type = 0;
+//Title
 app_name = "树";
+//Theme, circular anim color
 circular_color = org.duangsuse.tree.R.color.brown;
 mTheme = org.duangsuse.tree.R.style.ThemeBrown;
 
+//you can use this.interpreter.source(file_path) to execute custom script
 //how I get background?
 //leave blank to keep default
 fn_get_bg = "";

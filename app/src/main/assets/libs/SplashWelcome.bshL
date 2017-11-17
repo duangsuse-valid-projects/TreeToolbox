@@ -1,1 +1,2 @@
 //Shows welcome anim
+me.beginActivity("splashWelcome");
