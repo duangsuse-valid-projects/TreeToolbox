@@ -110,3 +110,6 @@ License: __GPL v3__
 - [ ] BiliBili video icon get __N__
 - [ ] netease splash replace __R-__
 # Screenshots
+![welcome](https://github.com/pigfromChina/TreeToolbox/raw/master/doc/start.png)
+![dl](https://github.com/pigfromChina/TreeToolbox/raw/master/doc/dling.png)
+![KKsplash](https://github.com/pigfromChina/TreeToolbox/raw/master/doc/kk_splash.png)
