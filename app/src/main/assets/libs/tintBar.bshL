@@ -1,6 +1,41 @@
 //KK tinted status bar
+import android.app.*;
+import android.os.*;
+import android.widget.*;
+import android.view.*;
+import android.content.*;
+import android.view.View.*;
+import android.graphics.*;
+import android.R.*;
 
 me.Import("libs/statusBarHeight");
 void setColor(c) {
+  setColorOrig(me, c);
+}
 
+//Copied! see MinBase64 Source Code
+public static void setColorOrig(Activity activity, int color) {
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+    View statusView = createStatusView(activity, color);
+    ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
+    decorView.addView(statusView);
+
+    rootView = activity.findViewById(android.R.id.content);
+    //rooView = rootView.getChildAt(0);
+    //activity.say(rootView.getClass().getName());
+    rootView.setFitsSystemWindows(true);
+    rootView.setClipToPadding(true);
+}}
+
+private static View createStatusView(Activity activity, int color) {
+  //int resourceId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
+  //int statusBarHeight = activity.getResources().getDimensionPixelSize(resourceId);
+
+  View statusView = new View(activity);
+  LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+    statusBarHeight);
+  statusView.setLayoutParams(params);
+  statusView.setBackgroundColor(color);
+  return statusView;
 }
