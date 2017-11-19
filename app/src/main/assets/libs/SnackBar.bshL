@@ -1,0 +1,47 @@
+//Simple Androbsh SnackBar Impl
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
+
+me.Import("libs/doImports");
+//Const
+SNACKBAR_LEN_SHORT = Toast.LENGTH_SHORT;
+SNACKBAR_LEN_LONG = Toast.LENGTH_LONG;
+SNACKBAR_COLOR = Color.argb();
+SNACKBAR_TEXTCOLOR = Color.WHITE;
+SNACKBAR_ALPHA = new ColorDrawable(Color.TRANSPARENT);
+SNACKBAR_TXT = "OK";
+
+public static void SnackBar(Context ctx, CharSequnece msg, int color, View extra_view, int duration) {
+  //TODO implement SnackBar
+}
+
+//func overloads
+public static void SnackBar(CharSequence msg, int color, View extra_view, int duration) {
+  SnackBar(me, msg, color, extra_view, duration);
+}
+
+public static void SnackBar(String msg, int color, int btn_color, String btn_txt, String click, int duration) {
+  Button btn = new Button(me);
+  btn.setBackgroundDrawable(SNACKBAR_ALPHA);
+  btn.setText(btn_txt);
+  btn.setTextColor(btn_color);
+  listener = new OnClickListener() {
+    public void onClick(View ignore) {
+      this.interpreter.eval(click + "()");
+    }
+  };
+  SnackBar(msg, color, btn, duration);
+}
+
+public static void SnackBar(String msg, int color, int duration) {
+  SnackBar(msg, color, SNACKBAR_TXT, null, duration);
+}
+
+public static void SnackBar(String msg, int color) {
+  SnackBar(msg, color, SNACKBAR_LEN_SHORT);
+}
+
+public static void SnackBar(String msg) {
+  SnackBar(msg, SNACKBAR_COLOR);
+}
